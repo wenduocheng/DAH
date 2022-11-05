@@ -18,12 +18,22 @@ func main() {
 
 	fmt.Println(OverlapGraph(sequencePath))
 
-	text2 := "AAGATTCTCTAC"
+	text2 := "AAGATTCTCTACAAGA"
+	fmt.Println("DeBrujinGraph was created")
 	fmt.Println(DeBruijnGraph(4, text2))
 
 	graph := DeBruijnGraph2(4, text2)
-	fmt.Println(graph.nodes)
-	fmt.Println(graph.edges)
+	fmt.Println("DeBrujinGraph2 was created")
+	for i := range graph.nodes {
+		fmt.Println(graph.nodes[i].label, ":")
+		for j := range graph.nodes[i].children {
+			fmt.Println(graph.nodes[i].children[j].label)
+		}
+	}
+	for i := range graph.edges {
+		fmt.Println(graph.edges[i].label, graph.edges[i].from.label, graph.edges[i].to.label, graph.edges[i].weight)
+	}
+
 }
 
 // String Composition Problem: Generate the k-mer composition of a string.
@@ -164,8 +174,8 @@ func DeBruijnGraph2(k int, text string) Graph {
 	dbnodes := make(map[string]*Node)
 	dbedges := make(map[string]*Edge)
 
-	kmerComposition := StringComposition(k, text)
-	kmers := KmerHash(k, text)
+	kmerComposition := StringComposition(k, text) // list of kmers
+	kmers := KmerHash(k, text)                    // map: kmer and frequency
 
 	for _, kmer := range kmerComposition {
 		// add prefix of kmer to nodes
@@ -195,11 +205,12 @@ func DeBruijnGraph2(k int, text string) Graph {
 		newEdge.from = dbnodes[Prefix(kmer)]
 		newEdge.to = dbnodes[Suffix(kmer)]
 		newEdge.weight = kmers[kmer]
+		newEdge.label = kmer
 
 		dbedges[kmer] = &newEdge
 
 		// add sufix node as a child to prefix node
-		dbnodes[Suffix(kmer)].children = append(dbnodes[Suffix(kmer)].children, dbnodes[Suffix(kmer)])
+		dbnodes[Prefix(kmer)].children = append(dbnodes[Prefix(kmer)].children, dbnodes[Suffix(kmer)])
 
 	}
 	dbgraph.nodes = dbnodes
@@ -207,43 +218,3 @@ func DeBruijnGraph2(k int, text string) Graph {
 	return dbgraph
 }
 
-// EulerianCycle
-// Input: The adjacency list of an Eulerian directed graph.
-// Output: An Eulerian cycle in this graph.
-// func EulerianCycle2(dbgraph Graph) []string {
-// 	// Form a cycle
-// 	cycle := make([]*Node, 0)
-//
-// 	// find a start node
-// 	visited := make([]*bool, len(dbgraph.nodes))
-//
-// 	for k:= range dbgraph.nodes{
-// 		if
-// 			node.inDegree <= node.outDegree
-// 			start=node
-// 			break
-// 	}
-// 	start := dbgraph.nodes
-// 	visited := make([]*bool, len(dbgraph.edges))
-//
-// 	currentNode := start
-// 	for currentNode != nil  { // while currentNode has a child
-// 		if currentNode.string == start.string { // if go back to the start, break the while loop
-// 			break
-// 		}
-// 		nextNode := currentNode.children
-// 		visited[currentNode] := true
-// 		cycle = append(genomePath, currentNode)
-// 		currentNode = nextNode
-// 	}
-//
-// 	// while there are unexplored edges in Graph
-// 	traverse the cycle
-//
-// 	return cycle
-//
-// }
-//
-// // Eulerian Path Problem: Construct an Eulerian path in a graph.
-// // Input: A directed graph.
-// // Output: A path visiting every edge in the graph exactly once (if it exists).
