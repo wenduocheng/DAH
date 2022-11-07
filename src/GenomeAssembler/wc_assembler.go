@@ -164,6 +164,104 @@ func DeBruijnGraph(k int, text string) map[string][]string {
 	}
 	return adjacencyList
 }
+func EulerianCycle(graph Graph) []string {
+	//find the start node
+	var start *Node
+	//count the total number of edges
+	var numEdge int
+	for _, n := range graph.nodes {
+		if n.inDegree < n.outDegree {
+			start = n
+		}
+		numEdge += n.inDegree
+	}
+	var genome []string
+	genome = append(genome, start.label)
+
+	var currentnode *Node
+	currentnode = start
+
+	for i := 0; i < numEdge; i++ {
+		prefix := currentnode.children[len(currentnode.children)-1].label
+		currentnode.children = currentnode.children[:len(currentnode.children)-1]
+		currentnode = graph.nodes[prefix]
+		genome = append(genome, currentnode.label)
+	}
+
+	return genome
+}
+
+func N50(reads []string) int {
+	var total_length int
+	reads = Sort(reads)
+	for _, read := range reads {
+		total_length += len(read)
+	}
+
+	N50_length := int(total_length / 2)
+	var currLength int
+	var N50_string string
+	for _, read := range reads {
+		currLength += len(read)
+		if currLength >= N50_length {
+			N50_string = read
+			break
+		}
+	}
+
+	return len(N50_string)
+}
+func Sort(reads []string) []string {
+	lenHash := make(map[int][]string)
+	for _, read := range reads {
+		length := len(read)
+		_, Exists := lenHash[length]
+		if Exists {
+			lenHash[length] = append(lenHash[length], read)
+		} else {
+			lenHash[length] = []string{read}
+		}
+	}
+	var lengthList []int
+	for key, _ := range lenHash {
+		lengthList = append(lengthList, key)
+	}
+	lengthList = DivideConquer(lengthList)
+	var sortList []string
+	for _, num := range lengthList {
+		stringList := lenHash[num]
+		sortList = append(sortList, stringList...)
+	}
+	return sortList
+}
+
+//apply divide and conquer
+func DivideConquer(numlist []int) []int {
+	if len(numlist) == 1 || len(numlist) == 0 {
+		return numlist
+	}
+	i := int(len(numlist) / 2)
+	right := DivideConquer(numlist[:i])
+	left := DivideConquer(numlist[i:])
+	var combineList []int
+	for len(right) != 0 && len(left) != 0 {
+		if right[0] <= left[0] {
+			combineList = append(combineList, right[0])
+			right = right[1:]
+		}
+		if right[0] > left[0] {
+			combineList = append(combineList, left[0])
+			left = left[1:]
+		}
+	}
+	if len(right) > 0 {
+		combineList = append(combineList, right...)
+	}
+	if len(left) > 0 {
+		combineList = append(combineList, left...)
+	}
+	return combineList
+}
 
 // De Bruijn Graph from a String Problem
 // Construct the de Bruijn graph of a string.
@@ -217,4 +315,3 @@ func DeBruijnGraph2(k int, text string) Graph {
 	dbgraph.edges = dbedges
 	return dbgraph
 }
-
