@@ -1,6 +1,7 @@
 package main
 
 type Graph struct {
+	root  *Node
 	nodes map[string]*Node //k-1 mer
 	edges map[string]*Edge //kmer
 }
