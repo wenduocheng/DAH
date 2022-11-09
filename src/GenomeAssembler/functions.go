@@ -12,10 +12,10 @@ import (
 // Wenduo
 func StringComposition(k int, text string) []string {
 	//count how many times each kmer occurred in this sequence
-	kmers := KmerHash(k, text)
+	kmerCounts := KmerHash(k, text)
 
-	kmerComposition := make([]string, 0, len(kmers))
-	for kmer := range kmers {
+	kmerComposition := make([]string, 0, len(kmerCounts))
+	for kmer := range kmerCounts {
 		kmerComposition = append(kmerComposition, kmer)
 	}
 
@@ -28,18 +28,33 @@ func StringComposition(k int, text string) []string {
 // Wenduo
 func KmerHash(k int, text string) map[string]int {
 	//count how many times each kmer occurred in this sequence
-	kmers := make(map[string]int)
+	kmerCounts := make(map[string]int)
 	for j := 0; j <= len(text)-k; j++ {
 		kmer := text[j : j+k]
-		_, exists := kmers[kmer]
+		_, exists := kmerCounts[kmer]
 		if exists {
-			kmers[kmer]++
+			kmerCounts[kmer]++
 		} else {
-			kmers[kmer] = 1
+			kmerCounts[kmer] = 1
 		}
 	}
 
-	return kmers
+	return kmerCounts
+}
+
+func KmerHash2(kmers []string) map[string]int {
+	//count how many times each kmer occurred in this sequence
+	kmerCounts := make(map[string]int)
+	for _, kmer := range kmers {
+		_, exists := kmerCounts[kmer]
+		if exists {
+			kmerCounts[kmer]++
+		} else {
+			kmerCounts[kmer] = 1
+		}
+	}
+
+	return kmerCounts
 }
 
 // String Spelled by a Genome Path Problem. Reconstruct a string from its genome path.
@@ -104,8 +119,8 @@ func Prefix(kmer string) string {
 // Input: An integer k and a string Text.
 // Output: DeBruijn_k(Tejxt), in the form of an adjacency matrix/list.
 // Wenduo; Lilin
-func DeBruijnGraph(k int, text string) map[string][]string {
-	kmerComposition := StringComposition(k, text)
+func DeBruijnGraph(k int, sequence string) map[string][]string {
+	kmerComposition := StringComposition(k, sequence)
 
 	adjacencyList := make(map[string][]string)
 	for _, kmer := range kmerComposition {
@@ -169,6 +184,7 @@ func N50(reads []string) int {
 
 	return len(N50_string)
 }
+
 func Sort(reads []string) []string {
 	lenHash := make(map[int][]string)
 	for _, read := range reads {
@@ -279,6 +295,9 @@ func DeBruijnGraph2(k int, text string) Graph {
 // GenerateSequence randomly genertes a sequence composed of A/T/C/G
 // Wenduo
 func GenerateSequence(length int) string {
+	if length < 0 {
+		panic("Error: Negative integer is given. Please give a nonnegative integer.")
+	}
 	nucleotides := []string{"A", "T", "C", "G"}
 	sequence := ""
 	for i := 0; i < length; i++ {
@@ -288,7 +307,19 @@ func GenerateSequence(length int) string {
 	return sequence
 }
 
+// GenerateSequence returns all the kmers of a string given a kmerLength
+// Wenduo
+func GetKmers(sequence string, kmerLength int) []string {
+	kmers := make([]string, 0)
+	for j := 0; j <= len(sequence)-kmerLength; j++ {
+		kmer := sequence[j:(j + kmerLength)]
+		kmers = append(kmers, kmer)
+	}
+	return kmers
+}
+
 // RandomMutate randomly mutates a slice of kmers
+// It is possible that even after mutation, genome is still the same.
 // Wenduo
 func RandomMutate(kmers []string, numMutations int) []string {
 	nucleotides := []string{"A", "T", "C", "G"}
@@ -332,7 +363,6 @@ func Noisify(kmers []string, numMutations, numDeletions int) []string {
 	deletedkmers := Delete(kmers, numDeletions, true)
 	mutatedKmers := RandomMutate(deletedkmers, numMutations)
 	return mutatedKmers
-
 }
 
 // GetUniqueKmerCounts
@@ -354,13 +384,41 @@ func GetUniqueKmerCounts(kmerCounts map[string]int) map[int]int {
 // Output: a sorted list of kmer count values
 // to generate distribution plot
 // Wenduo
-func kmerCountSort(kmerUniqCounts map[int]int) []int {
+func KmerCountSort(kmerUniqCounts map[int]int) []int {
 	sortedCounts := make([]int, 0)
 	for count := range kmerUniqCounts {
 		sortedCounts = append(sortedCounts, count)
 	}
 	sort.Ints(sortedCounts)
 	return sortedCounts
+}
+
+// SameStringSlices returns true if two slices are the same
+// Wendu
+func SameStringSlices(s1, s2 []string) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for i := range s1 {
+		if s1[i] != s2[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// SameIntegerSlices returns true if two slices are the same
+// Wendu
+func SameIntegerSlices(s1, s2 []int) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for i := range s1 {
+		if s1[i] != s2[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // If there are two connected nodes in the graph without a divergence, merge the two nodes.
