@@ -118,12 +118,6 @@ func TestKmerCountSort(t *testing.T) {
 	}
 }
 
-package main
-
-import (
-	"fmt"
-	"testing"
-)
 
 //Lilin
 func TestDivideConquer(t *testing.T) {
