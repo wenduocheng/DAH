@@ -53,6 +53,6 @@ func main() {
 	}
 	//The file is generated as a DOT file
 	file, _ := os.Create("./mygraph.gv")
-	_ = draw.DOT(g, file)
+	_ = draw.DOT(graph_plot, file)
 
 }
