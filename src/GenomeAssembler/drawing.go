@@ -23,6 +23,7 @@ func main() {
 // Draw Scatter plot
 // Input: UniqueKmerCount []int
 // Output: Scatter plot
+//tianyue
 
 func DrawKmerScatter(UniqueCounts []int) {
 	//due to the package is using interface, I need to check more about this
@@ -71,6 +72,7 @@ func DrawKmerScatter(UniqueCounts []int) {
 // Draw graph based on given De Bruijn Graph
 // Input: De Bruijn Graph (datatype as nodes map[string]*Node //k-1 mer; edges map[string]*Edge)
 // Output: De Bruijn Graph where vertices are k-1 mers and edges are k-mers
+//tianyue
 func (deBruijn Graph) DrawDeBruijnGraph() {
 	deBruijn_plot := graph.New(graph.StringHash, graph.Directed())
 
