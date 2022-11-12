@@ -17,14 +17,14 @@ func main() {
 	// fmt.Println("Hello, 世界")
 	var sudocounts = []int{233, 125, 98, 70, 23, 4, 1}
 
-	DrawKmerHistogram(sudocounts)
+	DrawKmerScatter(sudocounts)
 }
 
 // Draw Scatter plot
 // Input: UniqueKmerCount []int
 // Output: Scatter plot
 
-func DrawKmerHistogram(UniqueCounts []int) {
+func DrawKmerScatter(UniqueCounts []int) {
 	//due to the package is using interface, I need to check more about this
 
 	type XY struct{ X, Y float64 }
