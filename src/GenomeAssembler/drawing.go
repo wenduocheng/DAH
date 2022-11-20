@@ -92,3 +92,45 @@ func (deBruijn Graph) DrawDeBruijnGraph() {
 	_ = draw.DOT(deBruijn_plot, file)
 
 }
+// In our graph construct, we have Node as a map where keys represent the k-1 mers where we are connecting to the next one, and generate a gfa file that can be read by bandage
+// Input: de Bruijn Graph
+// output: GFA file
+//tianyue
+func SaveGraphToGFA(graph Graph) {
+	fmt.Println("SaveGraphToGFA")
+	//create a reference map
+	reference := make(map[string]int)
+	counter := 0
+	for key := range graph.nodes {
+		counter += 1
+		reference[key] = counter
+	}
+
+	f, err := os.Create("output.gfa")
+	if err != nil {
+		fmt.Println(err)
+	}
+	w := bufio.NewWriter(f)
+	w.WriteString("H" + "\t" + "\n")
+
+	//write the segment part
+	for key := range graph.nodes {
+		idx := reference[key]
+
+		w.WriteString("S" + "\t" + strconv.Itoa(idx) + "\t" + key + "\n")
+
+		// w.WriteString(key + "\n")
+	}
+	//write the linkage part
+	// counter_2 :=0
+	for _, val := range graph.edges {
+		from := reference[val.from.label]
+		to := reference[val.to.label]
+		w.WriteString("L" + "\t" + strconv.Itoa(from) + "\t" + "+" + "\t" + strconv.Itoa(to) + "\t" + "+" + "\t" + "5M" + "\n")
+
+	}
+	w.Flush()
+
+}
+
+
