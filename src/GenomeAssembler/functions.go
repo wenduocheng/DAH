@@ -345,8 +345,11 @@ func (dbGraph Graph) ChainMerging() Graph {
 	// run a DFS
 	for len(stack) != 0 {
 		// pop an element out of stack
+
 		node = stack[len(stack)-1]
 		stack = stack[:(len(stack) - 1)]
+
+		visited[node.label] = true
 		if len(node.children) <= 1 {
 			toBeMerged = append(toBeMerged, node)
 		} else { // have two or more children
@@ -379,10 +382,16 @@ func (dbGraph Graph) ChainMerging() Graph {
 				stack = append(stack, nextNode)
 			}
 		}
+
 	}
 	newGraph.nodes = newNodes
 	newGraph.edges = newEdges
-	// newGraph.root=
+	
+	for key, _ := range newGraph.nodes {
+		newGraph.root = newGraph.nodes[key]
+		break
+	}
+	
 	return newGraph
 }
 
