@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	k := 5
+		k := 5
 	text := "CAATCCAAC"
 	fmt.Println(StringComposition(k, text))
 	fmt.Println(KmerHash(k, text))
@@ -33,6 +33,23 @@ func main() {
 	for i := range graph.edges {
 		fmt.Println(graph.edges[i].label, graph.edges[i].from.label, graph.edges[i].to.label, graph.edges[i].weight)
 	}
+
+	fmt.Println(graph.root)
+
+	mergedGraph := graph.ChainMerging()
+	fmt.Println("Chain merging was performed")
+	for i := range mergedGraph.nodes {
+		fmt.Println(mergedGraph.nodes[i].label, ":")
+		for j := range mergedGraph.nodes[i].children {
+			fmt.Println(mergedGraph.nodes[i].children[j].label)
+		}
+	}
+	for i := range mergedGraph.edges {
+		fmt.Println(mergedGraph.edges[i].label, mergedGraph.edges[i].from.label, mergedGraph.edges[i].to.label, mergedGraph.edges[i].weight)
+	}
+
+	fmt.Println(mergedGraph.root)
+	
 	//Example of graphing
 	//Because previous variable is conflit with package, so I change it to another one
 	graph_plot := graph
