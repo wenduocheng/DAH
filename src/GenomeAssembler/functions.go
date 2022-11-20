@@ -188,7 +188,7 @@ func DeBruijnGraph2(k int, text string) Graph {
 	}
 	dbgraph.nodes = dbnodes
 	dbgraph.edges = dbedges
-	dbgraph.root = dbgraph.nodes[kmerComposition[0]]
+	dbgraph.root = dbgraph.nodes[Prefix(kmerComposition[0])]
 	return dbgraph
 }
 
@@ -328,43 +328,48 @@ func SameIntegerSlices(s1, s2 []int) bool {
 // Wenduo
 func (dbGraph Graph) ChainMerging() Graph {
 	var newGraph Graph
+	newNodes := make(map[string]*Node)
+	newEdges := make(map[string]*Edge)
 
 	visited := make(map[string]bool)
 	for _, node := range dbGraph.nodes {
 		visited[node.label] = false
 	}
+
 	node := dbGraph.root // choose a starting node
 	kmerLength := len(node.label) + 1
 	toBeMerged := make([]*Node, 0)
+	// make a stack
 	stack := make([]*Node, 0)
 	stack = append(stack, node)
 	// run a DFS
 	for len(stack) != 0 {
+		// pop an element out of stack
 		node = stack[len(stack)-1]
 		stack = stack[:(len(stack) - 1)]
 		if len(node.children) <= 1 {
 			toBeMerged = append(toBeMerged, node)
 		} else { // have two or more children
 			// add node to newGraph.nodes
-			newGraph.nodes[node.label] = node
+			newNodes[node.label] = node
 			// add edge to newGraph.edges
 			for _, child := range node.children {
-				kmer := node.label + child.label[kmerLength-1:kmerLength] // kmer is node.label+last character of child.label
-				newGraph.edges[kmer] = dbGraph.edges[kmer]
+				kmer := node.label + child.label[kmerLength-2:kmerLength-1] // kmer is node.label+last character of child.label
+				newEdges[kmer] = dbGraph.edges[kmer]
 			}
 			// Merge nodes in toBeMerged and add to graph
-			// Merge(toBeMerged) // merge the nodes into one
-			// // add to new graph
-			var mergedNode Node
-			newLabel := toBeMerged[0].label
-			for i := 1; i < len(toBeMerged); i++ {
-				newLabel += toBeMerged[i].label[kmerLength-1 : kmerLength]
+			if len(toBeMerged) >= 1 {
+				var mergedNode Node
+				newLabel := toBeMerged[0].label
+				for i := 1; i < len(toBeMerged); i++ {
+					newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
+				}
+				mergedNode.label = newLabel
+				mergedNode.children = toBeMerged[len(toBeMerged)-1].children
+				mergedNode.inDegree = toBeMerged[0].inDegree
+				mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
+				newNodes[mergedNode.label] = &mergedNode
 			}
-			mergedNode.label = newLabel
-			mergedNode.children = toBeMerged[len(toBeMerged)].children
-			mergedNode.inDegree = toBeMerged[0].inDegree
-			mergedNode.outDegree = toBeMerged[len(toBeMerged)].outDegree
-			newGraph.nodes[mergedNode.label] = &mergedNode
 
 			toBeMerged = make([]*Node, 0)
 
@@ -375,8 +380,12 @@ func (dbGraph Graph) ChainMerging() Graph {
 			}
 		}
 	}
+	newGraph.nodes = newNodes
+	newGraph.edges = newEdges
+	// newGraph.root=
 	return newGraph
 }
+
 //EulerianPath find the Eulerian path for the De brujin graph
 //Input: the graph object, representing the built de brujin graph
 //Output: the string list represent the eulerian path for reads, if no Eulerian path return empty string list
