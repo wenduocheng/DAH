@@ -397,7 +397,7 @@ func (dbGraph Graph) ChainMerging() Graph {
 
 //EulerianPath find the Eulerian path for the De brujin graph
 //Input: the graph object, representing the built de brujin graph
-//Output: the string list represent the eulerian path for reads, if no Eulerian path return empty string list
+//Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
 //Lilin
 func EulerianPath(graph Graph) []string {
 	//find the start node
@@ -453,10 +453,10 @@ func N50(contigs []string) int { //contigs
 	N50_length := (float64(total_length) / 2.0)
 	var currLength int
 	var N50_string string
-	for _, read := range contigs {
-		currLength += len(read)
+	for _, contig := range contigs {
+		currLength += len(contig)
 		if float64(currLength) >= N50_length {
-			N50_string = read
+			N50_string = contig
 			break
 		}
 	}
