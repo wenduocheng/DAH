@@ -524,6 +524,7 @@ func DivideConquer(numlist []int) []int {
 //DistinctKmerCount counts the number of distinct kmer in the string
 //Input: a map of kmer and frequency
 //Output: the number of distinct kmer
+//Lilin
 func DistinctKmerCount(kmerCounts map[string]int) int {
 
 	count := len(kmerCounts)
@@ -534,6 +535,7 @@ func DistinctKmerCount(kmerCounts map[string]int) int {
 //KmerSizeAdjustment counts the kmer size according to the readlength and kmer and genome coverage
 //Input: the readlength, kmer coverage and genome coverage
 //Output: the estimate optimal kmer size
+//Lilin
 func KmerSizeAdjustment(readlength int, kmer_coverage, genome_coverage float64) int {
 
 	var kmer_size int
@@ -545,6 +547,7 @@ func KmerSizeAdjustment(readlength int, kmer_coverage, genome_coverage float64) 
 //GenomeCoverage counts the genome coverage for the current kmer set
 //Input: the current genome, the kmer set
 //Output: the genome coverage
+//Lilin
 func GenomeCoverage(genome string, readlength, reads_number int) float64 {
 	var genome_coverage float64
 
@@ -559,6 +562,7 @@ func GenomeCoverage(genome string, readlength, reads_number int) float64 {
 //KmerCoverage counts the kmer coverage for the current kmer set
 //Input: the read length, kmer size and genome coverage
 //Output: the kmer coverage
+//Lilin
 func KmerCoverage(readlength, kmersize int, genome_coverage float64) float64 {
 
 	var kmer_coverage float64
@@ -572,6 +576,7 @@ func KmerCoverage(readlength, kmersize int, genome_coverage float64) float64 {
 //KmerSizeSet takes the readlength and generate the set of interger for range over to pick the optimal kmer size form this set
 //Input: the readlength
 //Output: the generated kmer size set
+//Lilin
 func KmerSizeSet(readlength int) []int {
 	var size_set []int
 	//find the prome number less or equal to the readlength
@@ -583,6 +588,7 @@ func KmerSizeSet(readlength int) []int {
 // in this case, although 1 is not prime number, we also take it into consideration
 //Input: the value
 //Output: the int list contains the prime number smaller than the value
+//Lilin
 func FindPrime(n int) []int {
 	var prime_list []int
 	//special case even 1 is not prime
@@ -634,6 +640,7 @@ func FindPrime(n int) []int {
 //OptimalKmerSize gives the optiaml kmersize for the later analysis
 //Input: genome, list of reads
 //Output: optimal kmer size
+//Lilin
 func OptimalKmerSize(genome string, reads []string) int {
 
 	var optimalk int
