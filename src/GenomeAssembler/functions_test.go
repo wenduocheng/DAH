@@ -234,4 +234,115 @@ func TestEulerianPath(t *testing.T) {
 
 	fmt.Println("EulerianPath all tests passed.")
 
+}//Lilin
+func TestFindPrime(t *testing.T) {
+	a := 20
+	a_prime_list := []int{1, 2, 3, 5, 7, 11, 13, 17, 19}
+	a_findprime := FindPrime(a)
+	for i, _ := range a_prime_list {
+		if a_prime_list[i] != a_findprime[i] {
+			t.Errorf("FindPrime function is wrong!")
+		}
+	}
+
+	b := 1
+	b_prime_list := []int{1}
+	b_findprime := FindPrime(b)
+	for i, _ := range b_prime_list {
+		if b_prime_list[i] != b_findprime[i] {
+			t.Errorf("FindPrime function is wrong!")
+		}
+	}
+	fmt.Println("FindPrime passes all tests.")
+}
+
+//Lilin
+func TestDistinctKmerCount(t *testing.T) {
+	text1 := "AAGAAGAAA"
+	expectedDisCount1 := 4
+	kmerCounts1 := KmerHash(3, text1)
+	realDisCount1 := DistinctKmerCount(kmerCounts1)
+	if expectedDisCount1 != realDisCount1 {
+		t.Errorf("DistinctKmerCount is wrong!")
+	}
+
+	text2 := "AGTCGCTA"
+	expectedDisCount2 := 5
+	kmerCounts2 := KmerHash(4, text2)
+	realDisCount2 := DistinctKmerCount(kmerCounts2)
+	if expectedDisCount2 != realDisCount2 {
+		t.Errorf("DistinctKmerCount is wrong!")
+	}
+	fmt.Println("DistinctKmerCount passes all tests.")
+}
+
+//Lilin
+func TestGenomeCoverage(t *testing.T) {
+	genome := "AGTCAGTCAGTCAGTCAGTC" //20
+	readlength := 5
+	reads_number := 10
+
+	genome_coverage := GenomeCoverage(genome, readlength, reads_number)
+
+	if genome_coverage != 2.5 {
+		t.Errorf("GenomeCoverage is wrong!")
+	}
+
+	fmt.Println("GenomeCoverage passes all tests.")
+}
+//Lilin
+func TestFindPrime(t *testing.T) {
+	a := 20
+	a_prime_list := []int{1, 2, 3, 5, 7, 11, 13, 17, 19}
+	a_findprime := FindPrime(a)
+	for i, _ := range a_prime_list {
+		if a_prime_list[i] != a_findprime[i] {
+			t.Errorf("FindPrime function is wrong!")
+		}
+	}
+
+	b := 1
+	b_prime_list := []int{1}
+	b_findprime := FindPrime(b)
+	for i, _ := range b_prime_list {
+		if b_prime_list[i] != b_findprime[i] {
+			t.Errorf("FindPrime function is wrong!")
+		}
+	}
+	fmt.Println("FindPrime passes all tests.")
+}
+
+//Lilin
+func TestDistinctKmerCount(t *testing.T) {
+	text1 := "AAGAAGAAA"
+	expectedDisCount1 := 4
+	kmerCounts1 := KmerHash(3, text1)
+	realDisCount1 := DistinctKmerCount(kmerCounts1)
+	if expectedDisCount1 != realDisCount1 {
+		t.Errorf("DistinctKmerCount is wrong!")
+	}
+
+	text2 := "AGTCGCTA"
+	expectedDisCount2 := 5
+	kmerCounts2 := KmerHash(4, text2)
+	realDisCount2 := DistinctKmerCount(kmerCounts2)
+	if expectedDisCount2 != realDisCount2 {
+		t.Errorf("DistinctKmerCount is wrong!")
+	}
+	fmt.Println("DistinctKmerCount passes all tests.")
+}
+
+//Lilin
+func TestGenomeCoverage(t *testing.T) {
+	genome := "AGTCAGTCAGTCAGTCAGTC" //20
+	readlength := 5
+	reads_number := 10
+
+	genome_coverage := GenomeCoverage(genome, readlength, reads_number)
+
+	if genome_coverage != 2.5 {
+		t.Errorf("GenomeCoverage is wrong!")
+	}
+
+	fmt.Println("GenomeCoverage passes all tests.")
 }
