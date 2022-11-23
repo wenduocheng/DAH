@@ -406,44 +406,32 @@ func (dbGraph Graph) ChainMerging() Graph {
 //Input: the graph object, representing the built de brujin graph
 //Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
 //Lilin
-func EulerianPath(graph Graph) []string {
+func EulerianPath(graph Graph) [][]string {
 	//find the start node
-	var start *Node
-	//count the total number of edges
-	var numEdge int
-
-	var numOddVertices int
+	var start []*Node
 	for _, n := range graph.nodes {
 		if n.inDegree < n.outDegree {
-			start = n
+			start = append(start, n)
 		}
-		if (n.inDegree+n.outDegree)%2 != 0 {
-			numOddVertices += 1
+
+	}
+
+	var contigs [][]string
+	for i, _ := range start {
+		startNode := start[i]
+		currentnode := startNode
+		contigs[i] = append(contigs[i], startNode.label)
+		//if start node has no more children nodes,continue
+		for len(startNode.children) != 0 {
+			prefix := currentnode.children[len(currentnode.children)-1].label
+			currentnode.children = currentnode.children[:len(currentnode.children)-1]
+			currentnode = graph.nodes[prefix]
+			contigs[i] = append(contigs[i], currentnode.label)
 		}
-		numEdge += n.inDegree
 	}
-	//If a graph has more than two vertices of odd degree, no eulerian path
-	if numOddVertices > 2 {
-		var emptyString []string
-		//return empty string list
-		return emptyString
-	}
-
-	var genome []string
-	genome = append(genome, start.label)
-
-	var currentnode *Node
-	currentnode = start
-
-	for i := 0; i < numEdge; i++ {
-		prefix := currentnode.children[len(currentnode.children)-1].label
-		currentnode.children = currentnode.children[:len(currentnode.children)-1]
-		currentnode = graph.nodes[prefix]
-		genome = append(genome, currentnode.label)
-	}
-
-	return genome
+	return contigs
 }
+
 
 //N50 takes the list of contigs and return the shortest contig length needed to cover 50% genome,
 // describing the completeness of genome assembly
@@ -552,16 +540,14 @@ func KmerSizeAdjustment(readlength int, kmer_coverage, genome_coverage float64) 
 }
 
 //GenomeCoverage counts the genome coverage for the current kmer set
-//Input: the current genome, the kmer set
+//Input: the estimate genome length, the readlength and the reads number
 //Output: the genome coverage
 //Lilin
-func GenomeCoverage(genome string, readlength, reads_number int) float64 {
+func GenomeCoverage(genome_length, readlength, reads_number int) float64 {
 	var genome_coverage float64
 
-	genome_size := len(genome)
-
 	//(A total number of reads * read length)/ (Estimated genome size)
-	genome_coverage = float64(reads_number) * float64(readlength) / float64(genome_size)
+	genome_coverage = float64(reads_number) * float64(readlength) / float64(genome_length)
 
 	return genome_coverage
 }
@@ -648,7 +634,7 @@ func FindPrime(n int) []int {
 //Input: genome, list of reads
 //Output: optimal kmer size
 //Lilin
-func OptimalKmerSize(genome string, reads []string) int {
+func OptimalKmerSize(reads []string) int {
 
 	var optimalk int
 
@@ -659,7 +645,11 @@ func OptimalKmerSize(genome string, reads []string) int {
 	var optimalk1 int
 	for i := range k_size_set {
 		k := k_size_set[i]
-		kmerCounts := KmerHash(k, genome)
+
+		var kmerCounts map[string]int
+		for _, read := range reads {
+			kmerCounts = KmerHash(k, read, kmerCounts)
+		}
 		distinct_kmer_count := DistinctKmerCount(kmerCounts)
 		if distinct_kmer_count > max_distinct_kmer_count {
 			max_distinct_kmer_count = distinct_kmer_count
@@ -671,9 +661,11 @@ func OptimalKmerSize(genome string, reads []string) int {
 	var kmer_coverage float64
 	var genome_coverage float64
 	var readsnumber int
+	var genome_length int
 
+	genome_length = GenomeSizeEstimate(reads)
 	readsnumber = len(reads)
-	genome_coverage = GenomeCoverage(genome, readlength, readsnumber)
+	genome_coverage = GenomeCoverage(genome_length, readlength, readsnumber)
 	kmer_coverage = KmerCoverage(readlength, optimalk1, genome_coverage)
 
 	optimalk = KmerSizeAdjustment(readlength, kmer_coverage, genome_coverage)
@@ -682,3 +674,13 @@ func OptimalKmerSize(genome string, reads []string) int {
 
 }
 
+//GenomeSizeEstimate estimates the size of the genome
+//Input: the reads set
+//Output: the size of genome
+//To be changed
+func GenomeSizeEstimate(reads []string) int {
+	var estimate_size int
+	//our reads is 10X
+	estimate_size = len(reads) / 10
+	return estimate_size
+}
