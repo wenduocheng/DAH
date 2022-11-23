@@ -521,3 +521,150 @@ func DivideConquer(numlist []int) []int {
 	}
 	return combineList
 }
+//DistinctKmerCount counts the number of distinct kmer in the string
+//Input: a map of kmer and frequency
+//Output: the number of distinct kmer
+func DistinctKmerCount(kmerCounts map[string]int) int {
+
+	count := len(kmerCounts)
+
+	return count
+}
+
+//KmerSizeAdjustment counts the kmer size according to the readlength and kmer and genome coverage
+//Input: the readlength, kmer coverage and genome coverage
+//Output: the estimate optimal kmer size
+func KmerSizeAdjustment(readlength int, kmer_coverage, genome_coverage float64) int {
+
+	var kmer_size int
+	kmer_size = 1 + readlength - int((kmer_coverage*float64(readlength))/genome_coverage)
+
+	return kmer_size
+}
+
+//GenomeCoverage counts the genome coverage for the current kmer set
+//Input: the current genome, the kmer set
+//Output: the genome coverage
+func GenomeCoverage(genome string, readlength, reads_number int) float64 {
+	var genome_coverage float64
+
+	genome_size := len(genome)
+
+	//(A total number of reads * read length)/ (Estimated genome size)
+	genome_coverage = float64(reads_number) * float64(readlength) / float64(genome_size)
+
+	return genome_coverage
+}
+
+//KmerCoverage counts the kmer coverage for the current kmer set
+//Input: the read length, kmer size and genome coverage
+//Output: the kmer coverage
+func KmerCoverage(readlength, kmersize int, genome_coverage float64) float64 {
+
+	var kmer_coverage float64
+	base_coverage := genome_coverage
+	//𝐶𝑘=𝐶⋅(𝑅−𝐾+1)/𝑅
+	kmer_coverage = base_coverage * float64(readlength-kmersize+1) / float64(readlength)
+
+	return kmer_coverage
+}
+
+//KmerSizeSet takes the readlength and generate the set of interger for range over to pick the optimal kmer size form this set
+//Input: the readlength
+//Output: the generated kmer size set
+func KmerSizeSet(readlength int) []int {
+	var size_set []int
+	//find the prome number less or equal to the readlength
+	size_set = FindPrime(readlength)
+	return size_set
+}
+
+//FindPrime takes in the value and returns the list of prime number smaller than that value
+// in this case, although 1 is not prime number, we also take it into consideration
+//Input: the value
+//Output: the int list contains the prime number smaller than the value
+func FindPrime(n int) []int {
+	var prime_list []int
+	//special case even 1 is not prime
+	if n == 1 {
+		prime_list = append(prime_list, 1)
+		return prime_list
+	}
+	if n == 2 {
+		prime_list = append(prime_list, 1)
+		prime_list = append(prime_list, 2)
+		return prime_list
+	}
+
+	var number_list []int
+	for i := 0; i <= n; i++ {
+		number_list = append(number_list, i)
+	}
+
+	var if_prime_list []bool
+	if_prime_list = make([]bool, n+1)
+	//1 and 2 are prime
+	if_prime_list[0] = false
+	if_prime_list[1] = true
+
+	for i := 2; i <= n; i++ {
+		if_prime_list[i] = true
+	}
+	sqrtn := int(math.Sqrt(float64(n))) + 1
+	//cross out multiple of the prime numebr
+	for i := 2; i < sqrtn; i++ {
+		if if_prime_list[i] {
+			for j := i * i; j <= n; j += i {
+				if_prime_list[j] = false
+			}
+		}
+	}
+
+	// if the nth position of the if_prime_list is true,
+	// the number at nth position of number_list is prime
+	for n := range if_prime_list {
+		if if_prime_list[n] {
+			prime_list = append(prime_list, number_list[n])
+		}
+	}
+
+	return prime_list
+}
+
+//OptimalKmerSize gives the optiaml kmersize for the later analysis
+//Input: genome, list of reads
+//Output: optimal kmer size
+func OptimalKmerSize(genome string, reads []string) int {
+
+	var optimalk int
+
+	readlength := len(reads[0])
+	//method1: find the k gives most number of distinct kmers
+	k_size_set := KmerSizeSet(readlength)
+	max_distinct_kmer_count := 0
+	var optimalk1 int
+	for i := range k_size_set {
+		k := k_size_set[i]
+		kmerCounts := KmerHash(k, genome)
+		distinct_kmer_count := DistinctKmerCount(kmerCounts)
+		if distinct_kmer_count > max_distinct_kmer_count {
+			max_distinct_kmer_count = distinct_kmer_count
+			optimalk1 = k
+		}
+	}
+
+	//methods improve result of first method from genome and kmer coverage
+	var kmer_coverage float64
+	var genome_coverage float64
+	var readsnumber int
+
+	readsnumber = len(reads)
+	genome_coverage = GenomeCoverage(genome, readlength, readsnumber)
+	kmer_coverage = KmerCoverage(readlength, optimalk1, genome_coverage)
+
+	optimalk = KmerSizeAdjustment(readlength, kmer_coverage, genome_coverage)
+
+	return optimalk
+
+}
+
