@@ -12,7 +12,8 @@ import (
 // Wenduo
 func StringComposition(k int, text string) []string {
 	//count how many times each kmer occurred in this sequence
-	kmerCounts := KmerHash(k, text)
+	kmers := make(map[string]int)
+	kmerCounts := KmerHash(k, text,kmers)
 
 	kmerComposition := make([]string, 0, len(kmerCounts))
 	for kmer := range kmerCounts {
@@ -23,12 +24,11 @@ func StringComposition(k int, text string) []string {
 }
 
 // KmerHash
-// Input: An integer k and a string Text.
+// Input: An integer k and a string Text, and already exists kmer map.
 // Output: a map of kmer and frequency
-// Wenduo
-func KmerHash(k int, text string) map[string]int {
+// Wenduo Lilin
+func KmerHash(k int, text string, kmerCounts map[string]int) map[string]int {
 	//count how many times each kmer occurred in this sequence
-	kmerCounts := make(map[string]int)
 	for j := 0; j <= len(text)-k; j++ {
 		kmer := text[j : j+k]
 		_, exists := kmerCounts[kmer]
@@ -142,13 +142,21 @@ func DeBruijnGraph(k int, sequence string) map[string][]string {
 // Input: An integer k and a string Text.
 // Output: a graph
 // Wenduo; Lilin
-func DeBruijnGraph2(k int, text string) Graph {
+func DeBruijnGraph2(k int, texts []string) Graph {
 	var dbgraph Graph
 	dbnodes := make(map[string]*Node)
 	dbedges := make(map[string]*Edge)
 
-	kmerComposition := StringComposition(k, text) // list of kmers
-	kmers := KmerHash(k, text)                    // map: kmer and frequency
+	var kmerComposition []string
+	for _, text := range texts {
+		kmer_list := StringComposition(k, text)
+		kmerComposition = append(kmerComposition, kmer_list...)
+	}
+
+	kmers := make(map[string]int)
+	for _, text := range texts {
+		kmers = KmerHash(k, text, kmers)
+	}
 
 	for _, kmer := range kmerComposition {
 		// add prefix of kmer to nodes
@@ -191,7 +199,6 @@ func DeBruijnGraph2(k int, text string) Graph {
 	dbgraph.root = dbgraph.nodes[Prefix(kmerComposition[0])]
 	return dbgraph
 }
-
 // GenerateSequence randomly genertes a sequence composed of A/T/C/G
 // Wenduo
 func GenerateSequence(length int) string {
