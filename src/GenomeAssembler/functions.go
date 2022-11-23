@@ -684,3 +684,75 @@ func GenomeSizeEstimate(reads []string) int {
 	estimate_size = len(reads) / 10
 	return estimate_size
 }
+
+// GenerateReadsNaive will generate random reads by given read length. It will generte a lisr of strings with given readlength and different num of reads
+// input: int,int
+// tianyue
+//
+//output:reads []string
+func GenerateReadsNaive(readlength int, differentReads int) []string {
+	rand.Seed(time.Now().UnixNano())
+	var temp []string
+	var LetterRunes = []rune("ATCG")
+	Sequence := make([]rune, readlength)
+
+	for j := 0; j < differentReads; j++ {
+		for i := range Sequence {
+			Sequence[i] = LetterRunes[rand.Intn(len(LetterRunes))]
+
+		}
+		//sequence will transfer rune type into string
+		sequence := string(Sequence)
+		temp = append(temp, sequence)
+	}
+	var ListSequence []string
+	ListSequence = CopyReads(temp, 10)
+
+	return ListSequence
+}
+
+// Copy each reads by given number of times
+// input []string as sequence
+// output []string reads with repeats
+// tianyue
+func CopyReads(ListSequence []string, times int) []string {
+	for i := 0; i < times; i++ {
+		ListSequence = append(ListSequence, ListSequence...)
+	}
+	return ListSequence
+}
+
+// Generate read seqs with the num pf each distinct read is normaly distrubuted
+// input int int
+// output []string as read seqs
+// tianyue
+func GenerateReadsNorm(readlength, differentreads int) []string {
+	var temp []string
+	var LetterRunes = []rune("ATCG")
+	// var NormalDist []int
+	Sequence := make([]rune, readlength)
+
+	for j := 0; j < differentreads; j++ {
+		for i := range Sequence {
+			Sequence[i] = LetterRunes[rand.Intn(len(LetterRunes))]
+
+		}
+		//sequence will transfer rune type into string
+		sequence := string(Sequence)
+		temp = append(temp, sequence)
+	}
+
+	//Generate a list number with Random Distribution
+	var b []int
+	for i := 0; i < len(temp); i++ {
+		b = append(b, int(rand.NormFloat64()*5+10))
+	}
+	var SeqReads []string
+	for j := 0; j < len(temp); j++ {
+		for i := 0; i < len(b); i++ {
+
+			SeqReads = append(SeqReads, temp[j])
+		}
+	}
+	return SeqReads
+}
