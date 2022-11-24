@@ -1,95 +1,77 @@
 package main
 
 import (
-	"math/rand"
 	"sort"
-	"time"
 )
 
-// String Composition Problem: Generate the k-mer composition of a string.
-// Input: An integer k and a string Text.
-// Output: Compositionk(Text), where the k-mers are arranged in lexicographic order.
-// Wenduo
-func StringComposition(k int, text string) []string {
-	//count how many times each kmer occurred in this sequence
-	kmers := make(map[string]int)
-	kmerCounts := KmerHash(k, text,kmers)
+// Nomenclature
+// kmer: a single kmer
+// kmerLength: length of kmer
+// kmers: a list of kmers
+// read: a single read
+// kmerCounts: a [string]int map of kmers; key is kmer and value is frequency
+// dbGraph: a de Bruijn graph
 
+// DenovoAssembler is the highest level function of our assembler
+// Input: a list of strings corresponding to sequencing reads; an integer corresponding to kmer size (to be modified)
+// Output: a list of strings corresponding to output contigs
+// Wenduo; Lilin; Tianyue
+func DenovoAssembler(reads []string, kmerLength int) [][]string {
+	// First step: Determine kmer size
+
+	// Second step: Hash the reads
+	// kmerCounts := KmerHashFromReads(kmerLength, reads)
+	// Generate a Kmer Distribution Plot
+	// uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
+	// sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
+	// DrawKmerScatter(sortedUniqCounts)
+
+	// Third step: Construct the de Bruijn graph
+	dbGraph := DeBruijnGraph(kmerLength, reads)
+
+	// Fourth step: Simplify the de Bruijn graph
+
+	// Fifth step: Output the contigs
+	contigs := EulerianPath(dbGraph)
+
+	return contigs
+}
+
+// kmerHashFromReads hashes a list of reads
+// Input: an integer corresponding to kmerLength, a list of string corresponding to sequencing reads
+// Output: a map[string] int; the key is kmer(string) and the value is frequency(int)
+// Wenduo
+func KmerHashFromReads(kmerLength int, reads []string) map[string]int {
+	//count how many times each kmer occurred in a list of reads
+	kmerCounts := make(map[string]int)
+
+	for _, read := range reads {
+		for j := 0; j <= len(read)-kmerLength; j++ {
+			kmer := read[j : j+kmerLength]
+			_, exists := kmerCounts[kmer]
+			if exists {
+				kmerCounts[kmer]++
+			} else {
+				kmerCounts[kmer] = 1
+			}
+		}
+	}
+
+	return kmerCounts
+}
+
+// GetKmerComposition gets the kmer composition from the kmerCounts map
+// Adapted from the String Composition Problem: Generate the k-mer composition of a string.
+// Input: a map corresponding to kmerCounts.
+// Output: a list of strings corresponding to kmers
+// Wenduo
+func GetKmerComposition(kmerCounts map[string]int) []string {
 	kmerComposition := make([]string, 0, len(kmerCounts))
 	for kmer := range kmerCounts {
 		kmerComposition = append(kmerComposition, kmer)
 	}
 
 	return kmerComposition
-}
-
-// KmerHash
-// Input: An integer k and a string Text, and already exists kmer map.
-// Output: a map of kmer and frequency
-// Wenduo Lilin
-func KmerHash(k int, text string, kmerCounts map[string]int) map[string]int {
-	//count how many times each kmer occurred in this sequence
-	for j := 0; j <= len(text)-k; j++ {
-		kmer := text[j : j+k]
-		_, exists := kmerCounts[kmer]
-		if exists {
-			kmerCounts[kmer]++
-		} else {
-			kmerCounts[kmer] = 1
-		}
-	}
-
-	return kmerCounts
-}
-
-func KmerHash2(kmers []string) map[string]int {
-	//count how many times each kmer occurred in this sequence
-	kmerCounts := make(map[string]int)
-	for _, kmer := range kmers {
-		_, exists := kmerCounts[kmer]
-		if exists {
-			kmerCounts[kmer]++
-		} else {
-			kmerCounts[kmer] = 1
-		}
-	}
-
-	return kmerCounts
-}
-
-// String Spelled by a Genome Path Problem. Reconstruct a string from its genome path.
-// Input: A sequence path of k-mers Pattern1, … ,Patternn such that the last k - 1 symbols of Patterni are equal to the first k-1 symbols of Patterni+1 for 1 ≤ i ≤ n-1.
-// Output: A string Text of length k+n-1 such that the i-th k-mer in Text is equal to Patterni (for 1 ≤ i ≤ n).
-// Wenduo
-func ReconstructStringFromGenomePath(sequencePath []string) string {
-	genome := sequencePath[0]
-	k := len(sequencePath[0])
-	for i := 1; i < len(sequencePath); i++ {
-		genome = genome + sequencePath[i][k-1:k]
-	}
-	return genome
-}
-
-// Overlap Graph Problem
-// Construct the overlap graph of a collection of k-mers.
-// Input: A collection Patterns of k-mers.
-// Output: The overlap graph Overlap(Patterns), in the form of an adjacency matix/list.
-// Wenduo
-func OverlapGraph(kmersCollection []string) [][]int {
-	if len(kmersCollection) <= 1 {
-		panic("Erros: too few kmers")
-	}
-	adjacencyMatrix := make([][]int, len(kmersCollection))
-	for i := range kmersCollection {
-		adjacencyMatrix[i] = make([]int, len(kmersCollection))
-		for j := range kmersCollection {
-			adjacencyMatrix[i][j] = 0
-			if i != j && Suffix(kmersCollection[i]) == Prefix(kmersCollection[j]) {
-				adjacencyMatrix[i][j] = 1
-			}
-		}
-	}
-	return adjacencyMatrix
 }
 
 // Suffix
@@ -116,47 +98,17 @@ func Prefix(kmer string) string {
 
 // De Bruijn Graph from a String Problem
 // Construct the de Bruijn graph of a string.
-// Input: An integer k and a string Text.
-// Output: DeBruijn_k(Tejxt), in the form of an adjacency matrix/list.
-// Wenduo; Lilin
-func DeBruijnGraph(k int, sequence string) map[string][]string {
-	kmerComposition := StringComposition(k, sequence)
-
-	adjacencyList := make(map[string][]string)
-	for _, kmer := range kmerComposition {
-		node := Prefix(kmer)
-
-		adjacencyList[node] = append(adjacencyList[node], Suffix(kmer))
-		// _, exists := adjacencyList[node]
-		// if exists {
-		// 	adjacencyList[node] = append(adjacencyList[node], Suffix(kmer))
-		// } else {
-		// 	adjacencyList[node] = append(adjacencyList[node], Suffix(kmer))
-		// }
-	}
-	return adjacencyList
-}
-
-// De Bruijn Graph from a String Problem
-// Construct the de Bruijn graph of a string.
-// Input: An integer k and a string Text.
+// Input: An integer k and a list of reads.
 // Output: a graph
 // Wenduo; Lilin
-func DeBruijnGraph2(k int, texts []string) Graph {
-	var dbgraph Graph
+func DeBruijnGraph(kmerLength int, reads []string) Graph {
+	var dbGraph Graph
 	dbnodes := make(map[string]*Node)
 	dbedges := make(map[string]*Edge)
 
-	var kmerComposition []string
-	for _, text := range texts {
-		kmer_list := StringComposition(k, text)
-		kmerComposition = append(kmerComposition, kmer_list...)
-	}
+	kmerCounts := KmerHashFromReads(kmerLength, reads)
 
-	kmers := make(map[string]int)
-	for _, text := range texts {
-		kmers = KmerHash(k, text, kmers)
-	}
+	kmerComposition := GetKmerComposition(kmerCounts)
 
 	for _, kmer := range kmerComposition {
 		// add prefix of kmer to nodes
@@ -185,7 +137,7 @@ func DeBruijnGraph2(k int, texts []string) Graph {
 		var newEdge Edge
 		newEdge.from = dbnodes[Prefix(kmer)]
 		newEdge.to = dbnodes[Suffix(kmer)]
-		newEdge.weight = kmers[kmer]
+		newEdge.weight = kmerCounts[kmer]
 		newEdge.label = kmer
 
 		dbedges[kmer] = &newEdge
@@ -194,24 +146,10 @@ func DeBruijnGraph2(k int, texts []string) Graph {
 		dbnodes[Prefix(kmer)].children = append(dbnodes[Prefix(kmer)].children, dbnodes[Suffix(kmer)])
 
 	}
-	dbgraph.nodes = dbnodes
-	dbgraph.edges = dbedges
-	dbgraph.root = dbgraph.nodes[Prefix(kmerComposition[0])]
-	return dbgraph
-}
-// GenerateSequence randomly genertes a sequence composed of A/T/C/G
-// Wenduo
-func GenerateSequence(length int) string {
-	if length < 0 {
-		panic("Error: Negative integer is given. Please give a nonnegative integer.")
-	}
-	nucleotides := []string{"A", "T", "C", "G"}
-	sequence := ""
-	for i := 0; i < length; i++ {
-		index := rand.Intn(4)
-		sequence += nucleotides[index]
-	}
-	return sequence
+	dbGraph.nodes = dbnodes
+	dbGraph.edges = dbedges
+	dbGraph.root = dbGraph.nodes[Prefix(kmerComposition[0])]
+	return dbGraph
 }
 
 // GenerateSequence returns all the kmers of a string given a kmerLength
@@ -223,53 +161,6 @@ func GetKmers(sequence string, kmerLength int) []string {
 		kmers = append(kmers, kmer)
 	}
 	return kmers
-}
-
-// RandomMutate randomly mutates a slice of kmers
-// It is possible that even after mutation, genome is still the same.
-// Wenduo
-func RandomMutate(kmers []string, numMutations int) []string {
-	nucleotides := []string{"A", "T", "C", "G"}
-	mutatedKmers := make([]string, len(kmers))
-	// Copy kmers
-	for index, val := range kmers {
-		mutatedKmers[index] = val
-	}
-	for i := 0; i < numMutations; i++ {
-		kmerIndex := rand.Intn(len(kmers))        // which kmer to be mutated
-		positionIndex := rand.Intn(len(kmers[0])) // which position of a kmer to be mutated
-		nucleotideIndex := rand.Intn(4)           // randomly choose A/T/C/G
-		mutatedKmers[kmerIndex] = kmers[kmerIndex][0:positionIndex] + nucleotides[nucleotideIndex] + kmers[kmerIndex][positionIndex+1:]
-	}
-	return mutatedKmers
-}
-
-// Shuffle shuffles a slice of kmers
-// Wenduo
-func Shuffle(kmers []string) []string {
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(kmers), func(i, j int) { kmers[i], kmers[j] = kmers[j], kmers[i] })
-	return kmers
-}
-
-// Delete deletes numDeletions kmers from a slice of kmers
-// Wenduo
-func Delete(kmers []string, numDeletions int, shuffle bool) []string {
-	if shuffle {
-		kmers = Shuffle(kmers)
-	}
-	for i := 0; i < numDeletions; i++ {
-		kmers = kmers[:(len(kmers) - 1)]
-	}
-	return kmers
-}
-
-// Noisify introduces noise to a set of kmers by shuffling, mutating and deleting them
-// Wenduo
-func Noisify(kmers []string, numMutations, numDeletions int) []string {
-	deletedkmers := Delete(kmers, numDeletions, true)
-	mutatedKmers := RandomMutate(deletedkmers, numMutations)
-	return mutatedKmers
 }
 
 // GetUniqueKmerCounts
@@ -298,34 +189,6 @@ func KmerCountSort(kmerUniqCounts map[int]int) []int {
 	}
 	sort.Ints(sortedCounts)
 	return sortedCounts
-}
-
-// SameStringSlices returns true if two slices are the same
-// Wendu
-func SameStringSlices(s1, s2 []string) bool {
-	if len(s1) != len(s2) {
-		return false
-	}
-	for i := range s1 {
-		if s1[i] != s2[i] {
-			return false
-		}
-	}
-	return true
-}
-
-// SameIntegerSlices returns true if two slices are the same
-// Wendu
-func SameIntegerSlices(s1, s2 []int) bool {
-	if len(s1) != len(s2) {
-		return false
-	}
-	for i := range s1 {
-		if s1[i] != s2[i] {
-			return false
-		}
-	}
-	return true
 }
 
 // If there are two connected nodes in the graph without a divergence, merge the two nodes.
@@ -393,19 +256,19 @@ func (dbGraph Graph) ChainMerging() Graph {
 	}
 	newGraph.nodes = newNodes
 	newGraph.edges = newEdges
-	
+
 	for key, _ := range newGraph.nodes {
 		newGraph.root = newGraph.nodes[key]
 		break
 	}
-	
+
 	return newGraph
 }
 
-//EulerianPath find the Eulerian path for the De brujin graph
-//Input: the graph object, representing the built de brujin graph
-//Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
-//Lilin
+// EulerianPath find the Eulerian path for the De brujin graph
+// Input: the graph object, representing the built de brujin graph
+// Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
+// Lilin
 func EulerianPath(graph Graph) [][]string {
 	//find the start node
 	var start []*Node
@@ -432,327 +295,45 @@ func EulerianPath(graph Graph) [][]string {
 	return contigs
 }
 
-
-//N50 takes the list of contigs and return the shortest contig length needed to cover 50% genome,
-// describing the completeness of genome assembly
-//Input: the list of contigs
-//Output: The length of the shortest contig cover 50% genome
-//Lilin
-func N50(contigs []string) int { //contigs
-	var total_length int
-	contigs = Sort(contigs)
-	for _, contig := range contigs {
-		total_length += len(contig)
+// String Spelled by a Genome Path Problem. Reconstruct a string from its genome path.
+// Input: A sequence path of k-mers Pattern1, … ,Patternn such that the last k - 1 symbols of Patterni are equal to the first k-1 symbols of Patterni+1 for 1 ≤ i ≤ n-1.
+// Output: A string Text of length k+n-1 such that the i-th k-mer in Text is equal to Patterni (for 1 ≤ i ≤ n).
+// Wenduo
+func ReconstructStringFromGenomePath(sequencePath []string) string {
+	genome := sequencePath[0]
+	k := len(sequencePath[0])
+	for i := 1; i < len(sequencePath); i++ {
+		genome = genome + sequencePath[i][k-1:k]
 	}
+	return genome
+}
 
-	N50_length := (float64(total_length) / 2.0)
-	var currLength int
-	var N50_string string
-	for _, contig := range contigs {
-		currLength += len(contig)
-		if float64(currLength) >= N50_length {
-			N50_string = contig
-			break
+// SameStringSlices returns true if two slices are the same
+// This function is for test
+// Wenduo
+func SameStringSlices(s1, s2 []string) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for i := range s1 {
+		if s1[i] != s2[i] {
+			return false
 		}
 	}
-
-	return len(N50_string)
+	return true
 }
 
-//Sort sorts the contigs according to their length from longest to shortest
-//Input: the list of contigues
-//Output: the list of the sorted contigs from longest to shortest
-//Lilin
-func Sort(contigs []string) []string {
-	lenHash := make(map[int][]string)
-	for _, contig := range contigs {
-		length := len(contig)
-		_, Exists := lenHash[length]
-		if Exists {
-			lenHash[length] = append(lenHash[length], contig)
-		} else {
-			lenHash[length] = []string{contig}
+// SameIntegerSlices returns true if two slices are the same
+// This function is for test
+// Wenduo
+func SameIntegerSlices(s1, s2 []int) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for i := range s1 {
+		if s1[i] != s2[i] {
+			return false
 		}
 	}
-	var lengthList []int
-	for key, _ := range lenHash {
-		lengthList = append(lengthList, key)
-	}
-	lengthList = DivideConquer(lengthList)
-	var sortList []string
-	for _, num := range lengthList {
-		stringList := lenHash[num]
-		sortList = append(sortList, stringList...)
-	}
-	return sortList
-}
-
-//DivideConquer sorts the list of int from largest to smallest using divide&conquer algorithm
-//Intput: a list of integer
-//Output: a sortest list of integer from largest to smallest
-//Lilin
-func DivideConquer(numlist []int) []int {
-	if len(numlist) == 1 || len(numlist) == 0 {
-		return numlist
-	}
-	i := int(len(numlist) / 2)
-	right := DivideConquer(numlist[:i])
-	left := DivideConquer(numlist[i:])
-	var combineList []int
-	for len(right) != 0 && len(left) != 0 {
-		if right[0] >= left[0] {
-			combineList = append(combineList, right[0])
-			right = right[1:]
-		} else if right[0] < left[0] {
-			combineList = append(combineList, left[0])
-			left = left[1:]
-		}
-	}
-	if len(right) > 0 {
-		combineList = append(combineList, right...)
-	}
-	if len(left) > 0 {
-		combineList = append(combineList, left...)
-	}
-	return combineList
-}
-//DistinctKmerCount counts the number of distinct kmer in the string
-//Input: a map of kmer and frequency
-//Output: the number of distinct kmer
-//Lilin
-func DistinctKmerCount(kmerCounts map[string]int) int {
-
-	count := len(kmerCounts)
-
-	return count
-}
-
-//KmerSizeAdjustment counts the kmer size according to the readlength and kmer and genome coverage
-//Input: the readlength, kmer coverage and genome coverage
-//Output: the estimate optimal kmer size
-//Lilin
-func KmerSizeAdjustment(readlength int, kmer_coverage, genome_coverage float64) int {
-
-	var kmer_size int
-	kmer_size = 1 + readlength - int((kmer_coverage*float64(readlength))/genome_coverage)
-
-	return kmer_size
-}
-
-//GenomeCoverage counts the genome coverage for the current kmer set
-//Input: the estimate genome length, the readlength and the reads number
-//Output: the genome coverage
-//Lilin
-func GenomeCoverage(genome_length, readlength, reads_number int) float64 {
-	var genome_coverage float64
-
-	//(A total number of reads * read length)/ (Estimated genome size)
-	genome_coverage = float64(reads_number) * float64(readlength) / float64(genome_length)
-
-	return genome_coverage
-}
-
-//KmerCoverage counts the kmer coverage for the current kmer set
-//Input: the read length, kmer size and genome coverage
-//Output: the kmer coverage
-//Lilin
-func KmerCoverage(readlength, kmersize int, genome_coverage float64) float64 {
-
-	var kmer_coverage float64
-	base_coverage := genome_coverage
-	//𝐶𝑘=𝐶⋅(𝑅−𝐾+1)/𝑅
-	kmer_coverage = base_coverage * float64(readlength-kmersize+1) / float64(readlength)
-
-	return kmer_coverage
-}
-
-//KmerSizeSet takes the readlength and generate the set of interger for range over to pick the optimal kmer size form this set
-//Input: the readlength
-//Output: the generated kmer size set
-//Lilin
-func KmerSizeSet(readlength int) []int {
-	var size_set []int
-	//find the prome number less or equal to the readlength
-	size_set = FindPrime(readlength)
-	return size_set
-}
-
-//FindPrime takes in the value and returns the list of prime number smaller than that value
-// in this case, although 1 is not prime number, we also take it into consideration
-//Input: the value
-//Output: the int list contains the prime number smaller than the value
-//Lilin
-func FindPrime(n int) []int {
-	var prime_list []int
-	//special case even 1 is not prime
-	if n == 1 {
-		prime_list = append(prime_list, 1)
-		return prime_list
-	}
-	if n == 2 {
-		prime_list = append(prime_list, 1)
-		prime_list = append(prime_list, 2)
-		return prime_list
-	}
-
-	var number_list []int
-	for i := 0; i <= n; i++ {
-		number_list = append(number_list, i)
-	}
-
-	var if_prime_list []bool
-	if_prime_list = make([]bool, n+1)
-	//1 and 2 are prime
-	if_prime_list[0] = false
-	if_prime_list[1] = true
-
-	for i := 2; i <= n; i++ {
-		if_prime_list[i] = true
-	}
-	sqrtn := int(math.Sqrt(float64(n))) + 1
-	//cross out multiple of the prime numebr
-	for i := 2; i < sqrtn; i++ {
-		if if_prime_list[i] {
-			for j := i * i; j <= n; j += i {
-				if_prime_list[j] = false
-			}
-		}
-	}
-
-	// if the nth position of the if_prime_list is true,
-	// the number at nth position of number_list is prime
-	for n := range if_prime_list {
-		if if_prime_list[n] {
-			prime_list = append(prime_list, number_list[n])
-		}
-	}
-
-	return prime_list
-}
-
-//OptimalKmerSize gives the optiaml kmersize for the later analysis
-//Input: genome, list of reads
-//Output: optimal kmer size
-//Lilin
-func OptimalKmerSize(reads []string) int {
-
-	var optimalk int
-
-	readlength := len(reads[0])
-	//method1: find the k gives most number of distinct kmers
-	k_size_set := KmerSizeSet(readlength)
-	max_distinct_kmer_count := 0
-	var optimalk1 int
-	for i := range k_size_set {
-		k := k_size_set[i]
-
-		var kmerCounts map[string]int
-		for _, read := range reads {
-			kmerCounts = KmerHash(k, read, kmerCounts)
-		}
-		distinct_kmer_count := DistinctKmerCount(kmerCounts)
-		if distinct_kmer_count > max_distinct_kmer_count {
-			max_distinct_kmer_count = distinct_kmer_count
-			optimalk1 = k
-		}
-	}
-
-	//methods improve result of first method from genome and kmer coverage
-	var kmer_coverage float64
-	var genome_coverage float64
-	var readsnumber int
-	var genome_length int
-
-	genome_length = GenomeSizeEstimate(reads)
-	readsnumber = len(reads)
-	genome_coverage = GenomeCoverage(genome_length, readlength, readsnumber)
-	kmer_coverage = KmerCoverage(readlength, optimalk1, genome_coverage)
-
-	optimalk = KmerSizeAdjustment(readlength, kmer_coverage, genome_coverage)
-
-	return optimalk
-
-}
-
-//GenomeSizeEstimate estimates the size of the genome
-//Input: the reads set
-//Output: the size of genome
-//To be changed
-func GenomeSizeEstimate(reads []string) int {
-	var estimate_size int
-	//our reads is 10X
-	estimate_size = len(reads) / 10
-	return estimate_size
-}
-
-// GenerateReadsNaive will generate random reads by given read length. It will generte a lisr of strings with given readlength and different num of reads
-// input: int,int
-// tianyue
-//
-//output:reads []string
-func GenerateReadsNaive(readlength int, differentReads int) []string {
-	rand.Seed(time.Now().UnixNano())
-	var temp []string
-	var LetterRunes = []rune("ATCG")
-	Sequence := make([]rune, readlength)
-
-	for j := 0; j < differentReads; j++ {
-		for i := range Sequence {
-			Sequence[i] = LetterRunes[rand.Intn(len(LetterRunes))]
-
-		}
-		//sequence will transfer rune type into string
-		sequence := string(Sequence)
-		temp = append(temp, sequence)
-	}
-	var ListSequence []string
-	ListSequence = CopyReads(temp, 10)
-
-	return ListSequence
-}
-
-// Copy each reads by given number of times
-// input []string as sequence
-// output []string reads with repeats
-// tianyue
-func CopyReads(ListSequence []string, times int) []string {
-	for i := 0; i < times; i++ {
-		ListSequence = append(ListSequence, ListSequence...)
-	}
-	return ListSequence
-}
-
-// Generate read seqs with the num pf each distinct read is normaly distrubuted
-// input int int
-// output []string as read seqs
-// tianyue
-func GenerateReadsNorm(readlength, differentreads int) []string {
-	var temp []string
-	var LetterRunes = []rune("ATCG")
-	// var NormalDist []int
-	Sequence := make([]rune, readlength)
-
-	for j := 0; j < differentreads; j++ {
-		for i := range Sequence {
-			Sequence[i] = LetterRunes[rand.Intn(len(LetterRunes))]
-
-		}
-		//sequence will transfer rune type into string
-		sequence := string(Sequence)
-		temp = append(temp, sequence)
-	}
-
-	//Generate a list number with Random Distribution
-	var b []int
-	for i := 0; i < len(temp); i++ {
-		b = append(b, int(rand.NormFloat64()*5+10))
-	}
-	var SeqReads []string
-	for j := 0; j < len(temp); j++ {
-		for i := 0; i < len(b); i++ {
-
-			SeqReads = append(SeqReads, temp[j])
-		}
-	}
-	return SeqReads
+	return true
 }
