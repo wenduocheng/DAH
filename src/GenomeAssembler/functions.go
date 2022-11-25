@@ -305,30 +305,40 @@ func EulerianPath(graph Graph) [][]string {
 
 	}
 
-	var contigs [][]string
+	var contigs_path [][]string
 	for i, _ := range start {
 		startNode := start[i]
 		currentnode := startNode
-		contigs[i] = append(contigs[i], startNode.label)
+		//index := len(contigs_path)
+		first := make([]string, 1)
+		contigs_path = append(contigs_path, first)
+		index := len(contigs_path) - 1
+		contigs_path[index][0] = startNode.label
 		//if start node has no more children nodes,continue
 		for len(startNode.children) != 0 {
 			prefix := currentnode.children[len(currentnode.children)-1].label
 			currentnode.children = currentnode.children[:len(currentnode.children)-1]
 			currentnode = graph.nodes[prefix]
-			contigs[i] = append(contigs[i], currentnode.label)
+			if currentnode == nil {
+				break
+			}
+			contigs_path[index] = append(contigs_path[index], currentnode.label)
+			startNode = currentnode
+
 		}
 	}
-	return contigs
+	return contigs_path
 }
 
 // String Spelled by a Genome Path Problem. Reconstruct a string from its genome path.
 // Input: A sequence path of k-mers Pattern1, … ,Patternn such that the last k - 1 symbols of Patterni are equal to the first k-1 symbols of Patterni+1 for 1 ≤ i ≤ n-1.
 // Output: A string Text of length k+n-1 such that the i-th k-mer in Text is equal to Patterni (for 1 ≤ i ≤ n).
-// Wenduo
+// Wenduo; Lilin
 func ReconstructStringFromGenomePath(sequencePath []string) string {
 	genome := sequencePath[0]
-	k := len(sequencePath[0])
+
 	for i := 1; i < len(sequencePath); i++ {
+		k := len(sequencePath[i])
 		genome = genome + sequencePath[i][k-1:k]
 	}
 	return genome
