@@ -150,7 +150,17 @@ func DeBruijnGraph(kmerLength int, reads []string) Graph {
 	}
 	dbGraph.nodes = dbnodes
 	dbGraph.edges = dbedges
-	dbGraph.root = dbGraph.nodes[Prefix(kmerComposition[0])]
+	
+	lowestInDegree := len(dbGraph.nodes)
+	var rootNode *Node
+	for key, _ := range dbGraph.nodes {
+		if dbGraph.nodes[key].inDegree < lowestInDegree {
+			lowestInDegree = dbGraph.nodes[key].inDegree
+			rootNode = dbGraph.nodes[key]
+		}
+	}
+	dbGraph.root = rootNode
+	
 	return dbGraph
 }
 
