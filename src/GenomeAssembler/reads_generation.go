@@ -117,6 +117,30 @@ func GenerateReadsNorm0(readlength, differentreads int) []string {
 	}
 	return SeqReads
 }
+func GenerateReadsNorm(readLength, numberOfCopies int, sequence string) []string {
+	if readLength > len(sequence) {
+		panic("Error: The read length has to be less than the sequence length.")
+	}
+
+	var temp_reads []string
+	for i := 0; i <= len(sequence)-readLength; i++ {
+		temp_reads = append(temp_reads, sequence[i:i+readLength])
+	}
+
+	//Generate a list number with Random Distribution
+	var b []int
+	for i := 0; i < len(temp_reads); i++ {
+		b = append(b, int(rand.NormFloat64()*5+10))
+	}
+	var SeqReads []string
+	for j := 0; j < len(temp_reads); j++ {
+		for i := 0; i < len(b); i++ {
+
+			SeqReads = append(SeqReads, temp_reads[j])
+		}
+	}
+	return SeqReads
+}
 
 // RandomMutate randomly mutates a slice of kmers
 // It is possible that even after mutation, genome is still the same.
