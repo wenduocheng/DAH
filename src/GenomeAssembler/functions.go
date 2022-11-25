@@ -337,3 +337,17 @@ func SameIntegerSlices(s1, s2 []int) bool {
 	}
 	return true
 }
+
+//AssembleContigs takes in path of different contigs and assemble them
+//Input: kmer path of different contigs
+//Output: the list of assembled kmers
+//Lilin
+func AssembleContigs(contigs [][]string) []string {
+	var contigs_list []string
+	num_contigs := len(contigs)
+	contigs_list = make([]string, num_contigs)
+	for i, _ := range contigs {
+		contigs_list[i] = ReconstructStringFromGenomePath(contigs[i])
+	}
+	return contigs_list
+}
