@@ -32,7 +32,8 @@ func DenovoAssembler(reads []string, kmerLength int) [][]string {
 	// Fourth step: Simplify the de Bruijn graph
 
 	// Fifth step: Output the contigs
-	contigs := EulerianPath(dbGraph)
+	contigsPath := EulerianPath(dbGraph)
+	contigs := AssembleContigs(contigsPath)
 
 	return contigs
 }
@@ -245,7 +246,6 @@ func (dbGraph Graph) ChainMerging() Graph {
 			}
 
 			toBeMerged = make([]*Node, 0)
-
 		}
 		for _, nextNode := range node.children {
 			if !visited[nextNode.label] {
@@ -254,6 +254,21 @@ func (dbGraph Graph) ChainMerging() Graph {
 		}
 
 	}
+
+	// Merge nodes in toBeMerged after running the DFS
+	if len(toBeMerged) >= 1 {
+		var mergedNode Node
+		newLabel := toBeMerged[0].label
+		for i := 1; i < len(toBeMerged); i++ {
+			newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
+		}
+		mergedNode.label = newLabel
+		mergedNode.children = toBeMerged[len(toBeMerged)-1].children
+		mergedNode.inDegree = toBeMerged[0].inDegree
+		mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
+		newNodes[mergedNode.label] = &mergedNode
+	}
+
 	newGraph.nodes = newNodes
 	newGraph.edges = newEdges
 
