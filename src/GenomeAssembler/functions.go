@@ -30,9 +30,10 @@ func DenovoAssembler(reads []string, kmerLength int) [][]string {
 	dbGraph := DeBruijnGraph(kmerLength, reads)
 
 	// Fourth step: Simplify the de Bruijn graph
+	mergedGraph := dbGraph.ChainMerging()
 
 	// Fifth step: Output the contigs
-	contigsPath := EulerianPath(dbGraph)
+	contigsPath := EulerianPath(mergedGraph)
 	contigs := AssembleContigs(contigsPath)
 
 	return contigs
