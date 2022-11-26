@@ -230,54 +230,128 @@ func (dbGraph Graph) ChainMerging() Graph {
 
 		node = stack[len(stack)-1]
 		stack = stack[:(len(stack) - 1)]
-
 		visited[node.label] = true
-		if len(node.children) <= 1 {
+
+		if len(node.children) == 1 && !visited[node.children[0].label] {
 			toBeMerged = append(toBeMerged, node)
+		} else if node.children == nil {
+			toBeMerged = append(toBeMerged, node)
+			var mergedNode Node
+			newLabel := toBeMerged[0].label
+			for i := 1; i < len(toBeMerged); i++ {
+				newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
+			}
+			mergedNode.label = newLabel
+			mergedNode.inDegree = toBeMerged[0].inDegree
+			mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
+			newNodes[mergedNode.label] = &mergedNode
+
+			for _, parent := range toBeMerged[0].parents {
+				mergedNode.parents = append(mergedNode.parents, newNodes[parent.label])
+				newNodes[parent.label].children = append(newNodes[parent.label].children, &mergedNode)
+				var newEdge Edge
+				newEdge.label = parent.label + mergedNode.label[kmerLength-2:len(mergedNode.label)]
+				newEdge.from = parent
+				newEdge.to = &mergedNode
+				newEdge.weight = dbGraph.edges[parent.label+toBeMerged[0].label[kmerLength-2:kmerLength-1]].weight
+				newEdges[newEdge.label] = &newEdge
+			}
+			toBeMerged = make([]*Node, 0)
+
+		} else if len(node.children) == 1 && visited[node.children[0].label] {
+			toBeMerged = append(toBeMerged, node)
+
+			var mergedNode Node
+			newLabel := toBeMerged[0].label
+			for i := 1; i < len(toBeMerged); i++ {
+				newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
+			}
+			mergedNode.label = newLabel
+			mergedNode.inDegree = toBeMerged[0].inDegree
+			mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
+			newNodes[mergedNode.label] = &mergedNode
+
+			for _, parent := range toBeMerged[0].parents {
+				mergedNode.parents = append(mergedNode.parents, newNodes[parent.label])
+				newNodes[parent.label].children = append(newNodes[parent.label].children, &mergedNode)
+				var newEdge Edge
+				newEdge.label = parent.label + mergedNode.label[kmerLength-2:len(mergedNode.label)]
+				newEdge.from = parent
+				newEdge.to = &mergedNode
+				newEdge.weight = dbGraph.edges[parent.label+toBeMerged[0].label[kmerLength-2:kmerLength-1]].weight
+				newEdges[newEdge.label] = &newEdge
+			}
+
+			mergedNode.children = append(mergedNode.children, newNodes[node.children[0].label])
+			newNodes[node.children[0].label].parents = append(newNodes[node.children[0].label].parents, &mergedNode)
+			var newEdge Edge
+			newEdge.label = mergedNode.label + node.children[0].label[kmerLength-2:kmerLength-1]
+			newEdge.from = &mergedNode
+			newEdge.to = newNodes[node.children[0].label]
+			newEdge.weight = dbGraph.edges[toBeMerged[len(toBeMerged)-1].label+node.children[0].label[kmerLength-2:kmerLength-1]].weight
+			newEdges[newEdge.label] = &newEdge
+
+			toBeMerged = make([]*Node, 0)
+
 		} else { // have two or more children
 			// add node to newGraph.nodes
-			newNodes[node.label] = node
-			// add edge to newGraph.edges
-			for _, child := range node.children {
-				kmer := node.label + child.label[kmerLength-2:kmerLength-1] // kmer is node.label+last character of child.label
-				newEdges[kmer] = dbGraph.edges[kmer]
-			}
+			// newNodes[node.label] = node
+			var newNode Node
+			newNode.label = node.label
+			newNode.inDegree = node.inDegree
+			newNode.outDegree = node.outDegree
+			newNodes[newNode.label] = &newNode
+
 			// Merge nodes in toBeMerged and add to graph
 			if len(toBeMerged) >= 1 {
 				var mergedNode Node
 				newLabel := toBeMerged[0].label
+				// Get the label of the merged node and the weight sum
 				for i := 1; i < len(toBeMerged); i++ {
 					newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
 				}
 				mergedNode.label = newLabel
-				mergedNode.children = toBeMerged[len(toBeMerged)-1].children
+				// mergedNode.children = toBeMerged[len(toBeMerged)-1].children
 				mergedNode.inDegree = toBeMerged[0].inDegree
 				mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
 				newNodes[mergedNode.label] = &mergedNode
+
+				// Add the mergedNode as the parent node of current node
+				newNode.parents = append(newNode.parents, &mergedNode)
+				// Add the currentNode as the children node of merged node
+				mergedNode.children = append(mergedNode.children, &newNode)
+
+				// mergedNode parents
+				for _, parent := range toBeMerged[0].parents {
+					mergedNode.parents = append(mergedNode.parents, newNodes[parent.label])
+					newNodes[parent.label].children = append(newNodes[parent.label].children, &mergedNode)
+
+					var newEdge Edge
+					newEdge.label = parent.label + mergedNode.label[kmerLength-2:len(mergedNode.label)]
+					newEdge.from = parent
+					newEdge.to = &mergedNode
+					newEdge.weight = dbGraph.edges[parent.label+toBeMerged[0].label[kmerLength-2:kmerLength-1]].weight
+					newEdges[newEdge.label] = &newEdge
+				}
+
+				// Add the edge between the current node and the merged node
+				var newEdge Edge
+				newEdge.label = mergedNode.label + node.label[kmerLength-2:kmerLength-1]
+				newEdge.from = &mergedNode
+				newEdge.to = node
+				newEdge.weight = dbGraph.edges[toBeMerged[len(toBeMerged)-1].label+node.label[kmerLength-2:kmerLength-1]].weight
+				newEdges[newEdge.label] = &newEdge
 			}
 
 			toBeMerged = make([]*Node, 0)
 		}
+		// Add unvisited children nodes to the stack
 		for _, nextNode := range node.children {
 			if !visited[nextNode.label] {
 				stack = append(stack, nextNode)
 			}
 		}
 
-	}
-
-	// Merge nodes in toBeMerged after running the DFS
-	if len(toBeMerged) >= 1 {
-		var mergedNode Node
-		newLabel := toBeMerged[0].label
-		for i := 1; i < len(toBeMerged); i++ {
-			newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
-		}
-		mergedNode.label = newLabel
-		mergedNode.children = toBeMerged[len(toBeMerged)-1].children
-		mergedNode.inDegree = toBeMerged[0].inDegree
-		mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
-		newNodes[mergedNode.label] = &mergedNode
 	}
 
 	newGraph.nodes = newNodes
@@ -290,6 +364,7 @@ func (dbGraph Graph) ChainMerging() Graph {
 
 	return newGraph
 }
+
 
 // EulerianPath find the Eulerian path for the De brujin graph
 // Input: the graph object, representing the built de brujin graph
