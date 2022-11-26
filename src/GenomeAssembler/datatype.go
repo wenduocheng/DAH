@@ -11,6 +11,7 @@ type Node struct {
 	inDegree  int
 	outDegree int
 	children  []*Node
+	parents   []*Node
 }
 
 type Edge struct {
