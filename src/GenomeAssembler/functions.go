@@ -20,11 +20,11 @@ func DenovoAssembler(reads []string, kmerLength int) [][]string {
 	// First step: Determine kmer size
 
 	// Second step: Hash the reads
-	// kmerCounts := KmerHashFromReads(kmerLength, reads)
+	kmerCounts := KmerHashFromReads(kmerLength, reads)
 	// Generate a Kmer Distribution Plot
-	// uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
-	// sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
-	// DrawKmerScatter(sortedUniqCounts)
+	uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
+	sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
+	DrawKmerScatter(sortedUniqCounts)
 
 	// Third step: Construct the de Bruijn graph
 	dbGraph := DeBruijnGraph(kmerLength, reads)
