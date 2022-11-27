@@ -14,11 +14,11 @@ func main() {
 	/////////////////////////////////
 	kmerLength := 5
 	kmerChoice := "default"
-	coverage := 3
+	
 	kmermin := 3
 	kmermax := 10
 	if kmerChoice == "default" {
-		kmerLength = OptimalKmerSize(reads, coverage)
+		kmerLength = OptimalKmerSize(reads, numberOfCopies)
 	} else {
 		kmerLength = OptimalKmerSizeWithRange(kmermin, kmermax, reads)
 	}
