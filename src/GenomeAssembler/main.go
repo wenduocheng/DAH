@@ -14,7 +14,7 @@ func main() {
 	/////////////////////////////////
 	kmerLength := 5
 	kmerChoice := "default"
-	coverage := 10
+	coverage := 3
 	kmermin := 3
 	kmermax := 10
 	if kmerChoice == "default" {
