@@ -117,7 +117,7 @@ func GenerateReadsNorm0(readlength, differentreads int) []string {
 	}
 	return SeqReads
 }
-func GenerateReadsNorm(readLength, numberOfCopies int, sequence string) []string {
+func GenerateReadsNorm(readLength int, sequence string) []string {
 	if readLength > len(sequence) {
 		panic("Error: The read length has to be less than the sequence length.")
 	}
@@ -130,15 +130,18 @@ func GenerateReadsNorm(readLength, numberOfCopies int, sequence string) []string
 	//Generate a list number with Random Distribution
 	var b []int
 	for i := 0; i < len(temp_reads); i++ {
-		b = append(b, int(rand.NormFloat64()*5+10))
+		b = append(b, int(rand.NormFloat64()*1+10))
 	}
+
 	var SeqReads []string
 	for j := 0; j < len(temp_reads); j++ {
-		for i := 0; i < len(b); i++ {
+		for i := 0; i < b[j]; i++ {
 
 			SeqReads = append(SeqReads, temp_reads[j])
+
 		}
 	}
+
 	return SeqReads
 }
 
