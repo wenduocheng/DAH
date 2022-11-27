@@ -370,10 +370,6 @@ func (dbGraph Graph) ChainMerging() Graph {
 // Input: the graph object, representing the built de brujin graph
 // Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
 // Lilin
-// EulerianPath find the Eulerian path for the De brujin graph
-// Input: the graph object, representing the built de brujin graph
-// Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
-// Lilin
 func EulerianPath(graph Graph) [][]string {
 	//find the start node
 	var start []*Node
