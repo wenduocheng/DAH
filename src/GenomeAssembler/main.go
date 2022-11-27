@@ -11,7 +11,19 @@ func main() {
 	reads := GenerateReadsNaive(readLength, numberOfCopies, pseudoSequence)
 	fmt.Println(reads)
 
-	kmerLength := 4
+	/////////////////////////////////
+	kmerLength := 5
+	kmerChoice := "default"
+	coverage := 10
+	kmermin := 3
+	kmermax := 10
+	if kmerChoice == "default" {
+		kmerLength = OptimalKmerSize(reads, coverage)
+	} else {
+		kmerLength = OptimalKmerSizeWithRange(kmermin, kmermax, reads)
+	}
+	fmt.Println(kmerLength)
+	/////////////////////////////////
 
 	graph := DeBruijnGraph(kmerLength, reads)
 	fmt.Println("DeBrujinGraph was created")
