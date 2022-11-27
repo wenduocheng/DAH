@@ -16,7 +16,7 @@ import (
 // Input: a list of strings corresponding to sequencing reads; an integer corresponding to kmer size (to be modified)
 // Output: a list of strings corresponding to output contigs
 // Wenduo; Lilin; Tianyue
-func DenovoAssembler(reads []string, kmerLength int) [][]string {
+func DenovoAssembler(reads []string, kmerLength int) []string {
 	// First step: Determine kmer size
 
 	// Second step: Hash the reads
