@@ -204,7 +204,7 @@ func FindPrime(n int) []int {
 // Input: genome, list of reads
 // Output: optimal kmer size
 // Lilin
-func OptimalKmerSize(reads []string) int {
+func OptimalKmerSize(reads []string, coverage int) int {
 
 	var optimalk int
 
@@ -217,9 +217,9 @@ func OptimalKmerSize(reads []string) int {
 		k := k_size_set[i]
 
 		var kmerCounts map[string]int
-		for _, read := range reads {
-			kmerCounts = KmerHash0(k, read, kmerCounts)
-		}
+
+		kmerCounts = KmerHashFromReads(k, reads)
+
 		distinct_kmer_count := DistinctKmerCount(kmerCounts)
 		if distinct_kmer_count > max_distinct_kmer_count {
 			max_distinct_kmer_count = distinct_kmer_count
@@ -233,7 +233,7 @@ func OptimalKmerSize(reads []string) int {
 	var readsnumber int
 	var genome_length int
 
-	genome_length = GenomeSizeEstimate(reads)
+	genome_length = GenomeSizeEstimate(reads, coverage)
 	readsnumber = len(reads)
 	genome_coverage = GenomeCoverage(genome_length, readlength, readsnumber)
 	kmer_coverage = KmerCoverage(readlength, optimalk1, genome_coverage)
@@ -243,14 +243,39 @@ func OptimalKmerSize(reads []string) int {
 	return optimalk
 
 }
-
 // GenomeSizeEstimate estimates the size of the genome
-// Input: the reads set
-// Output: the size of genome
-// To be changed
-func GenomeSizeEstimate(reads []string) int {
+// Input: the reads set, the coverage rate
+// Output: the estimate size of genome
+func GenomeSizeEstimate(reads []string, coverage int) int {
 	var estimate_size int
 	//our reads is 10X
-	estimate_size = len(reads) / 10
+	estimate_size = len(reads) / coverage
 	return estimate_size
+}
+//OptimalKmerSizeWithRange finds the best kmer length within a range
+//Input: the range of the kmerlength the min value and the max value, the slice of reads
+//Output: the kmer length within this range of best fit
+func OptimalKmerSizeWithRange(kmermin, kmermax int, reads []string) int {
+	var k_size_set []int
+
+	for i := kmermin; i <= kmermax; i++ {
+		k_size_set = append(k_size_set, i)
+	}
+
+	max_distinct_kmer_count := 0
+	var optimalk1 int
+	for i := range k_size_set {
+		k := k_size_set[i]
+
+		var kmerCounts map[string]int
+
+		kmerCounts = KmerHashFromReads(k, reads)
+
+		distinct_kmer_count := DistinctKmerCount(kmerCounts)
+		if distinct_kmer_count > max_distinct_kmer_count {
+			max_distinct_kmer_count = distinct_kmer_count
+			optimalk1 = k
+		}
+	}
+	return optimalk1
 }
