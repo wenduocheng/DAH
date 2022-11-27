@@ -20,11 +20,11 @@ func DenovoAssembler(reads []string, kmerLength int) []string {
 	// First step: Determine kmer size
 
 	// Second step: Hash the reads
-	kmerCounts := KmerHashFromReads(kmerLength, reads)
+	// kmerCounts := KmerHashFromReads(kmerLength, reads)
 	// Generate a Kmer Distribution Plot
-	uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
-	sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
-	DrawKmerScatter(sortedUniqCounts)
+	// uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
+	// sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
+	// DrawKmerScatter(sortedUniqCounts)
 
 	// Third step: Construct the de Bruijn graph
 	dbGraph := DeBruijnGraph(kmerLength, reads)
@@ -146,11 +146,12 @@ func DeBruijnGraph(kmerLength int, reads []string) Graph {
 
 		// add sufix node as a child to prefix node
 		dbnodes[Prefix(kmer)].children = append(dbnodes[Prefix(kmer)].children, dbnodes[Suffix(kmer)])
-
+		// add prefix node as a parent to suffix node
+		dbnodes[Suffix(kmer)].parents = append(dbnodes[Suffix(kmer)].parents, dbnodes[Prefix(kmer)])
 	}
 	dbGraph.nodes = dbnodes
 	dbGraph.edges = dbedges
-	
+
 	lowestInDegree := len(dbGraph.nodes)
 	var rootNode *Node
 	for key, _ := range dbGraph.nodes {
@@ -160,7 +161,7 @@ func DeBruijnGraph(kmerLength int, reads []string) Graph {
 		}
 	}
 	dbGraph.root = rootNode
-	
+
 	return dbGraph
 }
 
@@ -365,7 +366,6 @@ func (dbGraph Graph) ChainMerging() Graph {
 	return newGraph
 }
 
-
 // EulerianPath find the Eulerian path for the De brujin graph
 // Input: the graph object, representing the built de brujin graph
 // Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
@@ -449,10 +449,10 @@ func SameIntegerSlices(s1, s2 []int) bool {
 	return true
 }
 
-//AssembleContigs takes in path of different contigs and assemble them
-//Input: kmer path of different contigs
-//Output: the list of assembled kmers
-//Lilin
+// AssembleContigs takes in path of different contigs and assemble them
+// Input: kmer path of different contigs
+// Output: the list of assembled kmers
+// Lilin
 func AssembleContigs(contigs [][]string) []string {
 	var contigs_list []string
 	num_contigs := len(contigs)
