@@ -370,6 +370,10 @@ func (dbGraph Graph) ChainMerging() Graph {
 // Input: the graph object, representing the built de brujin graph
 // Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
 // Lilin
+// EulerianPath find the Eulerian path for the De brujin graph
+// Input: the graph object, representing the built de brujin graph
+// Output: the string list represent the eulerian path for kemrs, if no Eulerian path return empty string list
+// Lilin
 func EulerianPath(graph Graph) [][]string {
 	//find the start node
 	var start []*Node
@@ -379,8 +383,17 @@ func EulerianPath(graph Graph) [][]string {
 		}
 
 	}
-
 	var contigs_path [][]string
+	//special case:
+	//when results of the ChainMergeing is only one complete genome no indegree
+	//and outdegree of the node
+	if len(start) == 0 {
+		first := make([]string, 1)
+		first[0] = graph.root.label
+		contigs_path = append(contigs_path, first)
+		return contigs_path
+	}
+
 	for i, _ := range start {
 		startNode := start[i]
 		currentnode := startNode
