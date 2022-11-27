@@ -11,6 +11,11 @@ func main() {
 	reads := GenerateReadsNaive(readLength, numberOfCopies, pseudoSequence)
 	fmt.Println(reads)
 
+	numMutations := 5
+	numDeletions := 1
+	readsWithNoise := Noisify(reads, numMutations, numDeletions)
+	fmt.Println(readsWithNoise)
+	
 	/////////////////////////////////
 	kmerLength := 5
 	kmerChoice := "default"
@@ -24,6 +29,8 @@ func main() {
 	}
 	fmt.Println(kmerLength)
 	/////////////////////////////////
+	
+	
 
 	graph := DeBruijnGraph(kmerLength, reads)
 	fmt.Println("DeBrujinGraph was created")
