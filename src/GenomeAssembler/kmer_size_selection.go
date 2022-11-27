@@ -247,10 +247,10 @@ func OptimalKmerSize(reads []string, coverage int) int {
 // Input: the reads set, the coverage rate
 // Output: the estimate size of genome
 //Lilin
-func GenomeSizeEstimate(reads []string, coverage int) int {
+func GenomeSizeEstimate(reads []string, numberOfCopies int) int {
 	var estimate_size int
 	//our reads is 10X
-	estimate_size = len(reads) / coverage
+	estimate_size = len(reads) / numberOfCopies
 	return estimate_size
 }
 //OptimalKmerSizeWithRange finds the best kmer length within a range
