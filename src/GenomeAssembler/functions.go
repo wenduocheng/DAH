@@ -34,7 +34,7 @@ func DenovoAssembler(reads []string, kmerLength int) []string {
 
 	// Fifth step: Output the contigs
 	contigsPath := EulerianPath(mergedGraph)
-	contigs := AssembleContigs(contigsPath)
+	contigs := AssembleContigs(contigsPath, kmerLength)
 
 	return contigs
 }
@@ -415,18 +415,20 @@ func EulerianPath(graph Graph) [][]string {
 }
 
 // String Spelled by a Genome Path Problem. Reconstruct a string from its genome path.
-// Input: A sequence path of k-mers Pattern1, … ,Patternn such that the last k - 1 symbols of Patterni are equal to the first k-1 symbols of Patterni+1 for 1 ≤ i ≤ n-1.
+// Input: A sequence path of k-mers Pattern1, … ,Patternn such that the last k - 1 symbols of Patterni are equal to the first k-1 symbols of Patterni+1 for 1 ≤ i ≤ n-1.Kmer_length.
 // Output: A string Text of length k+n-1 such that the i-th k-mer in Text is equal to Patterni (for 1 ≤ i ≤ n).
 // Wenduo; Lilin
-func ReconstructStringFromGenomePath(sequencePath []string) string {
+func ReconstructStringFromGenomePath(sequencePath []string, kmer_length int) string {
 	genome := sequencePath[0]
+	start_point := kmer_length - 2
 
 	for i := 1; i < len(sequencePath); i++ {
 		k := len(sequencePath[i])
-		genome = genome + sequencePath[i][k-1:k]
+		genome = genome + sequencePath[i][start_point:k]
 	}
 	return genome
 }
+
 
 // SameStringSlices returns true if two slices are the same
 // This function is for test
@@ -459,15 +461,15 @@ func SameIntegerSlices(s1, s2 []int) bool {
 }
 
 // AssembleContigs takes in path of different contigs and assemble them
-// Input: kmer path of different contigs
+// Input: kmer path of different contigs, kmerlength
 // Output: the list of assembled kmers
 // Lilin
-func AssembleContigs(contigs [][]string) []string {
+func AssembleContigs(contigs [][]string, kmer_length int) []string {
 	var contigs_list []string
 	num_contigs := len(contigs)
 	contigs_list = make([]string, num_contigs)
 	for i, _ := range contigs {
-		contigs_list[i] = ReconstructStringFromGenomePath(contigs[i])
+		contigs_list[i] = ReconstructStringFromGenomePath(contigs[i], kmer_length)
 	}
 	return contigs_list
 }
