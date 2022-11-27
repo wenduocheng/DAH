@@ -21,6 +21,59 @@ import (
 // Input: UniqueKmerCount []int
 // Output: Scatter plot
 //tianyue
+func DrawKmerScatter(uniqueKmerCounts map[int]int, title, xlabel, ylabel string) {
+	//due to the package is using interface, I need to check more about this
+
+	type XY struct{ X, Y float64 }
+
+	type XYs []XY
+
+	//generate data in XY format
+	pts := make(plotter.XYs, len(uniqueKmerCounts))
+	var x []int
+	var y []int
+
+	for key, val := range uniqueKmerCounts {
+		x = append(x, val)
+		y = append(y, key)
+
+	}
+	for i := 0; i < len(pts); i++ {
+		pts[i].Y = float64(x[i])
+		pts[i].X = float64(y[i])
+	}
+
+	fmt.Println(pts, "pts")
+
+	//generate data
+	// for i := 0; i < len(UniqueCounts); i++ {
+	// 	Plot_val = append(Plot_val, float64(UniqueCounts[i]))
+	// 	fmt.Println(Plot_val, UniqueCounts[i])
+	// }
+
+	fmt.Println("finished data copying")
+	plot := plot.New()
+
+	plot.Title.Text = title
+	plot.Y.Label.Text = ylabel
+	plot.X.Label.Text = xlabel
+	sca, err2 := plotter.NewScatter(pts)
+	if err2 != nil {
+		panic("Filure generating histogram")
+	}
+	sca.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
+	sca.GlyphStyle.Radius = vg.Points(1)
+	// line, err := plotter.NewLine(LineData)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+	// line.LineStyle.Width = vg.Points(1)
+	// line.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
+	// line.LineStyle.Color = color.RGBA{B: 255, A: 255}
+	plot.Add(sca)
+	plot.Save(200, 200, "scatter_trial.png")
+
+}
 
 // Draw graph based on given De Bruijn Graph
 // Input: De Bruijn Graph (datatype as nodes map[string]*Node //k-1 mer; edges map[string]*Edge)
