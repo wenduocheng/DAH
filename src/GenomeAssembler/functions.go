@@ -231,9 +231,8 @@ func (dbGraph Graph) ChainMerging() Graph {
 
 		node = stack[len(stack)-1]
 		stack = stack[:(len(stack) - 1)]
-		visited[node.label] = true
 
-		if len(node.children) == 1 && !visited[node.children[0].label] {
+		if len(node.children) == 1 && !visited[node.children[0].label] && (len(node.parents) == 1 || node.parents == nil) {
 			toBeMerged = append(toBeMerged, node)
 		} else if node.children == nil {
 			toBeMerged = append(toBeMerged, node)
@@ -260,48 +259,102 @@ func (dbGraph Graph) ChainMerging() Graph {
 			toBeMerged = make([]*Node, 0)
 
 		} else if len(node.children) == 1 && visited[node.children[0].label] {
-			toBeMerged = append(toBeMerged, node)
-
-			var mergedNode Node
-			newLabel := toBeMerged[0].label
-			for i := 1; i < len(toBeMerged); i++ {
-				newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
-			}
-			mergedNode.label = newLabel
-			mergedNode.inDegree = toBeMerged[0].inDegree
-			mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
-			newNodes[mergedNode.label] = &mergedNode
-
-			for _, parent := range toBeMerged[0].parents {
-				mergedNode.parents = append(mergedNode.parents, newNodes[parent.label])
-				newNodes[parent.label].children = append(newNodes[parent.label].children, &mergedNode)
+			if node.label == node.children[0].label { // point to itself
 				var newEdge Edge
-				newEdge.label = parent.label + mergedNode.label[kmerLength-2:len(mergedNode.label)]
-				newEdge.from = parent
-				newEdge.to = &mergedNode
-				newEdge.weight = dbGraph.edges[parent.label+toBeMerged[0].label[kmerLength-2:kmerLength-1]].weight
+				newEdge.label = node.label + node.children[0].label[kmerLength-2:kmerLength-1]
+				newEdge.from = newNodes[node.label]
+				newEdge.to = newNodes[node.label]
+				newEdge.weight = dbGraph.edges[newEdge.label].weight
+				newEdges[newEdge.label] = &newEdge
+
+				newNodes[node.label].children = append(newNodes[node.label].children, newNodes[node.label])
+				newNodes[node.label].parents = append(newNodes[node.label].parents, newNodes[node.label])
+			} else {
+				toBeMerged = append(toBeMerged, node)
+			}
+			if len(toBeMerged) >= 1 {
+				var mergedNode Node
+				newLabel := toBeMerged[0].label
+				for i := 1; i < len(toBeMerged); i++ {
+					newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
+				}
+				mergedNode.label = newLabel
+				mergedNode.inDegree = toBeMerged[0].inDegree
+				mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
+				newNodes[mergedNode.label] = &mergedNode
+
+				for _, parent := range toBeMerged[0].parents {
+					mergedNode.parents = append(mergedNode.parents, newNodes[parent.label])
+					newNodes[parent.label].children = append(newNodes[parent.label].children, &mergedNode)
+					var newEdge Edge
+					newEdge.label = parent.label + mergedNode.label[kmerLength-2:len(mergedNode.label)]
+					newEdge.from = parent
+					newEdge.to = &mergedNode
+					newEdge.weight = dbGraph.edges[parent.label+toBeMerged[0].label[kmerLength-2:kmerLength-1]].weight
+					newEdges[newEdge.label] = &newEdge
+				}
+
+				mergedNode.children = append(mergedNode.children, newNodes[node.children[0].label])
+				newNodes[node.children[0].label].parents = append(newNodes[node.children[0].label].parents, &mergedNode)
+				var newEdge Edge
+				newEdge.label = mergedNode.label + node.children[0].label[kmerLength-2:kmerLength-1]
+				newEdge.from = &mergedNode
+				newEdge.to = newNodes[node.children[0].label]
+				newEdge.weight = dbGraph.edges[toBeMerged[len(toBeMerged)-1].label+node.children[0].label[kmerLength-2:kmerLength-1]].weight
 				newEdges[newEdge.label] = &newEdge
 			}
-
-			mergedNode.children = append(mergedNode.children, newNodes[node.children[0].label])
-			newNodes[node.children[0].label].parents = append(newNodes[node.children[0].label].parents, &mergedNode)
-			var newEdge Edge
-			newEdge.label = mergedNode.label + node.children[0].label[kmerLength-2:kmerLength-1]
-			newEdge.from = &mergedNode
-			newEdge.to = newNodes[node.children[0].label]
-			newEdge.weight = dbGraph.edges[toBeMerged[len(toBeMerged)-1].label+node.children[0].label[kmerLength-2:kmerLength-1]].weight
-			newEdges[newEdge.label] = &newEdge
-
 			toBeMerged = make([]*Node, 0)
-
 		} else { // have two or more children
+
 			// add node to newGraph.nodes
 			// newNodes[node.label] = node
+
 			var newNode Node
 			newNode.label = node.label
 			newNode.inDegree = node.inDegree
 			newNode.outDegree = node.outDegree
 			newNodes[newNode.label] = &newNode
+
+			for _, child := range node.children { // if a node has a child that is the node itself
+				if child.label == node.label {
+					var newEdge Edge
+					newEdge.label = node.label + node.children[0].label[kmerLength-2:kmerLength-1]
+					newEdge.from = newNodes[node.label]
+					newEdge.to = newNodes[node.label]
+					newEdge.weight = dbGraph.edges[newEdge.label].weight
+					newEdges[newEdge.label] = &newEdge
+					// newNodes[node.label].children = append(newNodes[node.label].children, newNodes[node.label])
+					// newNodes[node.label].parents = append(newNodes[node.label].parents, newNodes[node.label])
+				}
+			}
+
+			for _, parent := range node.parents {
+				_, exists := newNodes[parent.label]
+				if exists {
+					newNodes[parent.label].children = append(newNodes[parent.label].children, newNodes[node.label])
+					newNodes[node.label].parents = append(newNodes[node.label].parents, newNodes[parent.label])
+					var newEdge Edge
+					newEdge.label = newNodes[parent.label].label + newNodes[node.label].label[kmerLength-2:kmerLength-1]
+					newEdge.from = newNodes[parent.label]
+					newEdge.to = newNodes[node.label]
+					newEdge.weight = dbGraph.edges[newEdge.label].weight
+					newEdges[newEdge.label] = &newEdge
+				}
+			}
+
+			for _, child := range node.children {
+				_, exists := newNodes[child.label]
+				if exists && !newNodes[child.label].InChildren(newNodes[node.label]) {
+					newNodes[node.label].children = append(newNodes[node.label].children, newNodes[child.label])
+					newNodes[child.label].parents = append(newNodes[child.label].parents, newNodes[node.label])
+					var newEdge Edge
+					newEdge.label = newNodes[node.label].label + newNodes[child.label].label[kmerLength-2:kmerLength-1]
+					newEdge.from = newNodes[node.label]
+					newEdge.to = newNodes[child.label]
+					newEdge.weight = dbGraph.edges[newEdge.label].weight
+					newEdges[newEdge.label] = &newEdge
+				}
+			}
 
 			// Merge nodes in toBeMerged and add to graph
 			if len(toBeMerged) >= 1 {
@@ -317,11 +370,6 @@ func (dbGraph Graph) ChainMerging() Graph {
 				mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
 				newNodes[mergedNode.label] = &mergedNode
 
-				// Add the mergedNode as the parent node of current node
-				newNode.parents = append(newNode.parents, &mergedNode)
-				// Add the currentNode as the children node of merged node
-				mergedNode.children = append(mergedNode.children, &newNode)
-
 				// mergedNode parents
 				for _, parent := range toBeMerged[0].parents {
 					mergedNode.parents = append(mergedNode.parents, newNodes[parent.label])
@@ -335,6 +383,11 @@ func (dbGraph Graph) ChainMerging() Graph {
 					newEdges[newEdge.label] = &newEdge
 				}
 
+				// Add the mergedNode as the parent node of current node
+				newNode.parents = append(newNode.parents, &mergedNode)
+				// Add the currentNode as the children node of merged node
+				mergedNode.children = append(mergedNode.children, &newNode)
+
 				// Add the edge between the current node and the merged node
 				var newEdge Edge
 				newEdge.label = mergedNode.label + node.label[kmerLength-2:kmerLength-1]
@@ -343,9 +396,10 @@ func (dbGraph Graph) ChainMerging() Graph {
 				newEdge.weight = dbGraph.edges[toBeMerged[len(toBeMerged)-1].label+node.label[kmerLength-2:kmerLength-1]].weight
 				newEdges[newEdge.label] = &newEdge
 			}
-
 			toBeMerged = make([]*Node, 0)
 		}
+		visited[node.label] = true
+
 		// Add unvisited children nodes to the stack
 		for _, nextNode := range node.children {
 			if !visited[nextNode.label] {
@@ -364,6 +418,17 @@ func (dbGraph Graph) ChainMerging() Graph {
 	}
 
 	return newGraph
+}
+
+// InChildren is a method of *Node to check if node is in parent.children
+// Wenduo
+func (node *Node) InChildren(parent *Node) bool {
+	for _, child := range parent.children {
+		if child.label == node.label {
+			return true
+		}
+	}
+	return false
 }
 
 // EulerianPath find the Eulerian path for the De brujin graph
