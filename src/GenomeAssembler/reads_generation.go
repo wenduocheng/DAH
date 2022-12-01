@@ -5,6 +5,21 @@ import (
 	"time"
 )
 
+// GenerateReads randomly select positions of the genome and generate reads
+// Wenduo
+func GenerateReads(readLength int, readCounts int, sequence string) []string {
+	n := len(sequence)
+	reads := make([]string, 0)
+	for i := 0; i < readCounts; i++ {
+		start := rand.Intn(n)
+		if start < n-readLength {
+			read := sequence[start : start+readLength]
+			reads = append(reads, read)
+		}
+	}
+	return reads
+}
+
 // GenerateSequence randomly genertes a sequence composed of A/T/C/G
 // Wenduo
 func GenerateSequence(length int) string {
