@@ -7,9 +7,11 @@ func main() {
 	readLength := 150
 	readCounts := 3000
 	reads := GenerateReads(readLength, readCounts, viralSequence)
+	readsForPlot := GenerateReadsPlot(readLength, readCounts, viralSequence)
+	fmt.Println(readsForPlot)
 	// fmt.Println(reads)
 
-	kmerLength := 8
+	kmerLength := 18
 
 	// graph := DeBruijnGraph(kmerLength, reads)
 	// fmt.Println("DeBrujinGraph was created")
@@ -51,6 +53,6 @@ func main() {
 
 	fmt.Println("De novo assembly was finished!")
 
-	fmt.Println(contigs)
+	fmt.Println(len(contigs[0]), len(contigs)
 
 }
