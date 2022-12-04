@@ -22,15 +22,17 @@ func GenerateReads(readLength int, readCounts int, sequence string) []string {
 
 // Generate Read Coverage Plot
 // Wenduo
-func GenerateReadsPlot(readLength int, readCounts int, sequence string) map[int]int {
+func GenerateReadsPlot(readLength int, readCounts int, sequence string) []int {
 	n := len(sequence)
-	reads := make(map[int]int)
+	reads := make([]int, n)
 	for i := 0; i < readCounts; i++ {
 		start := rand.Intn(n)
 		if start < n-readLength {
 			// read := sequence[start : start+readLength]
 			// reads = append(reads, read)
-			reads[start]++
+			for j := start; j < start+readLength; j++ {
+				reads[j]++
+			}
 		}
 	}
 	return reads
