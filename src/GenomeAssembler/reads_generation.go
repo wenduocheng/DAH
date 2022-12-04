@@ -20,6 +20,23 @@ func GenerateReads(readLength int, readCounts int, sequence string) []string {
 	return reads
 }
 
+// Generate Read Coverage Plot
+// Wenduo
+func GenerateReadsPlot(readLength int, readCounts int, sequence string) map[int]int {
+	n := len(sequence)
+	reads := make(map[int]int)
+	for i := 0; i < readCounts; i++ {
+		start := rand.Intn(n)
+		if start < n-readLength {
+			// read := sequence[start : start+readLength]
+			// reads = append(reads, read)
+			reads[start]++
+		}
+	}
+	return reads
+}
+
+
 // GenerateSequence randomly genertes a sequence composed of A/T/C/G
 // Wenduo
 func GenerateSequence(length int) string {
