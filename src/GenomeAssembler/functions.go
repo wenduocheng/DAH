@@ -476,6 +476,42 @@ func EulerianPath(graph Graph) [][]string {
 
 		}
 	}
+	
+	//to check if finish all edges if not continue
+	a := true
+	for a {
+		var start_node *Node
+		for _, n := range graph.nodes {
+			a = false
+			if len(n.children) > 0 {
+				start_node = n
+				a = true
+				break
+			}
+		}
+		if a == false {
+			break
+		}
+		currentnode := start_node
+		//index := len(contigs_path)
+		first := make([]string, 1)
+		contigs_path = append(contigs_path, first)
+		index := len(contigs_path) - 1
+		contigs_path[index][0] = start_node.label
+		//if start node has no more children nodes,continue
+		for len(start_node.children) != 0 {
+			prefix := currentnode.children[len(currentnode.children)-1].label
+			currentnode.children = currentnode.children[:len(currentnode.children)-1]
+			currentnode = graph.nodes[prefix]
+			if currentnode == nil {
+				break
+			}
+			contigs_path[index] = append(contigs_path[index], currentnode.label)
+			start_node = currentnode
+
+		}
+	}
+
 	return contigs_path
 }
 
