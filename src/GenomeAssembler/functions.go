@@ -574,3 +574,15 @@ func AssembleContigs(contigs [][]string, kmer_length int) []string {
 	}
 	return contigs_list
 }
+
+// CalculateGCConent determines the GC content of a sequence string
+// Wenduo
+func CalculateGCConent(sequence string) int {
+	count := 0
+	for i := 0; i < len(sequence); i++ {
+		if sequence[i:i+1] == "c" || sequence[i:i+1] == "g" || sequence[i:i+1] == "C" || sequence[i:i+1] == "G" {
+			count++
+		}
+	}
+	return count
+}
