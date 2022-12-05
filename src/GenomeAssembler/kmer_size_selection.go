@@ -239,7 +239,15 @@ func OptimalKmerSize(reads []string, coverage int) int {
 	kmer_coverage = KmerCoverage(readlength, optimalk1, genome_coverage)
 
 	optimalk = KmerSizeAdjustment(readlength, kmer_coverage, genome_coverage)
-
+	
+	//if the kmer is too small, the memory would be large, and mismatch could also be large
+	if readlength >= 10 && optimalk < 4 {
+		optimalk = 4
+	}
+	//if too large accuracy problem
+	if optimalk > 25 {
+		optimalk = 25
+	}
 	return optimalk
 
 }
