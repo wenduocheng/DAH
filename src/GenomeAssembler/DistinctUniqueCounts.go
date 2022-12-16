@@ -47,7 +47,7 @@ func DistinctCount(kmerCounts map[string]int) int {
 // Output: the Kmer hash map, key: kmers value: kmer counts
 // Lilin
 func KmerHash(reads []string, k int) map[string]int {
-	var kmerCounts map[string]int
+	kmerCounts := make(map[string]int)
 	for _, read := range reads {
 		for i := 0; i <= len(read)-k; i++ {
 			kmer := read[i : i+k]
