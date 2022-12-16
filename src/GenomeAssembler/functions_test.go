@@ -333,3 +333,30 @@ func TestGenomeCoverage(t *testing.T) {
 
 	fmt.Println("GenomeCoverage passes all tests!")
 }
+
+//Lilin
+func TestKmerHash(t *testing.T) {
+	var reads1 []string
+	reads1 = append(reads1, "AGTC")
+	reads1 = append(reads1, "GGCT")
+
+	result1 := KmerHash(reads1, 3)
+	expect1 := map[string]int{"AGT": 1, "GCT": 1, "GGC": 1, "GTC": 1}
+
+	if result1["AGT"] != expect1["AGT"] || result1["GCT"] != expect1["GCT"] {
+		t.Errorf("KmerHash fails at base case!")
+	}
+
+	var reads2 []string
+	reads2 = append(reads2, "GGGG")
+	reads2 = append(reads2, "GGCT")
+
+	result2 := KmerHash(reads2, 3)
+	expect2 := map[string]int{"GGG": 2, "GGC": 1, "GTC": 1}
+
+	if result2["GGG"] != expect2["GGG"] || result2["GGC"] != expect2["GGC"] {
+		t.Errorf("KmerHash fails at repeat case!")
+	}
+
+	fmt.Println("KmerHash passes all tests")
+}
