@@ -80,40 +80,76 @@ func main() {
 	if kmerchoice != "default" && kmerchoice != "range" {
 		panic("Wrong kmerchoice, try again.")
 	}
+
 	//if kmerchoice is range: we have two more Args to represent min and max of the range
 	var min, max int
 	if kmerchoice == "range" {
 		//min
-		min, err1 := strconv.Atoi(os.Args[4])
+		min1, err1 := strconv.Atoi(os.Args[4])
 		if err1 != nil {
 			panic(err1)
 		}
-		if min <= 0 {
+		min = min1
+		fmt.Println(min1)
+		if min1 <= 0 {
 			panic("kmer min less or equal to 0 wrong, try again.")
 		}
 
 		//max
-		max, err1 := strconv.Atoi(os.Args[5])
+		max1, err1 := strconv.Atoi(os.Args[5])
 		if err1 != nil {
 			panic(err1)
 		}
-		if max <= 0 {
-			panic("kmer min less or equal to 0 wrong, try again.")
-		}
-		if max < min {
+		max = max1
+		if max1 < min {
 			panic("max is less than min, wrong sequence, try again")
 		}
 	}
 
 	var reads []string
 	if filetype == "genome" {
-		genome := ReadSequence(filename)
+		genome := ReadInput(filename)
 		readLength := 100
 		readCounts := 300000
 		reads = GenerateReads(readLength, readCounts, genome)
 	} else {
-		reads = ReadReads(filename)
+		reads = ReadInput(filename)
 	}
+
+	//generate the distinct and unique kmer counts plot:
+	uniquecounts, distinctcounts := GenerateUniqueAndDistinctCount(reads)
+
+	//output the kmer counts to draw in python
+	fmt.Println("Now output the kmer counts.")
+
+	//unique counts file
+	file1, err := os.OpenFile("UniqueKmerCounts.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("failed creating file: %s", err)
+	}
+
+	datawriter1 := bufio.NewWriter(file1)
+
+	for k, _ := range uniquecounts {
+		_, _ = datawriter1.WriteString(k, ":"+strconv.Itoa(uniquecounts[k])+"\n")
+	}
+
+	datawriter1.Flush()
+	file1.Close()
+
+	file2, err := os.OpenFile("DistinctKmerCounts.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("failed creating file: %s", err)
+	}
+
+	datawriter2 := bufio.NewWriter(file2)
+
+	for k, _ := range distinctcounts {
+		_, _ = datawriter2.WriteString(k, ":"+strconv.Itoa(distinctcounts[k])+"\n")
+	}
+
+	datawriter2.Flush()
+	file2.Close()
 
 	//kmer selection
 	var kmer_length int
@@ -139,21 +175,21 @@ func main() {
 
 	//output the generated contigs
 	fmt.Println("Now output the contigs.")
-	file, err := os.OpenFile("contigs.fasta", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file3, err := os.OpenFile("contigs.fasta", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
 		log.Fatalf("failed creating file: %s", err)
 	}
 
-	datawriter := bufio.NewWriter(file)
+	datawriter3 := bufio.NewWriter(file3)
 
 	for i, contig := range contigs {
-		_, _ = datawriter.WriteString(">contigs" + strconv.Itoa(i) + " length: " + strconv.Itoa(len(contig)) + "\n")
-		_, _ = datawriter.WriteString(contig + "\n")
+		_, _ = datawriter3.WriteString(">contigs" + strconv.Itoa(i) + " length: " + strconv.Itoa(len(contig)) + "\n")
+		_, _ = datawriter3.WriteString(contig + "\n")
 	}
 
-	datawriter.Flush()
-	file.Close()
+	datawriter3.Flush()
+	file3.Close()
 	fmt.Println("Contigs are written to the file")
 
 	//get the N50 length
