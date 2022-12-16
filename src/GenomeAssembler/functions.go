@@ -28,9 +28,13 @@ func DenovoAssembler(reads []string, kmerLength int) []string {
 
 	// Third step: Construct the de Bruijn graph
 	dbGraph := DeBruijnGraph(kmerLength, reads)
-
+	SaveGraphToGFA(dbGraph, "deBruijnGraph")
 	// Fourth step: Simplify the de Bruijn graph
 	mergedGraph := dbGraph.ChainMerging()
+	SaveGraphToGFA(mergedGraph, "merged")
+
+	tipclipedGraph := mergedGraph.TipClip(kmerLength)
+	SaveGraphToGFA(tipclipedGraph, "tipclip")
 
 	// Fifth step: Output the contigs
 	contigsPath := EulerianPath(mergedGraph)
