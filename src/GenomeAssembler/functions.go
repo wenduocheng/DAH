@@ -18,14 +18,14 @@ import (
 // Output: a list of strings corresponding to output contigs
 // Wenduo; Lilin; Tianyue
 func DenovoAssembler(reads []string, kmerLength int) []string {
-	// First step: Determine kmer size
+		// First step: Determine kmer size
 
 	// Second step: Hash the reads
 	kmerCounts := KmerHashFromReads(kmerLength, reads)
 	// Generate a Kmer Frequency Distribution Plot
 	uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
 	sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
-	fmt.Println(sortedUniqCounts)
+
 	DrawHistogram(sortedUniqCounts)
 
 	// Third step: Construct the de Bruijn graph
@@ -629,7 +629,7 @@ func (graph Graph) TipClip(kmerLength int) Graph {
 	var pastNode *Node
 	//starting from the root of the graph
 	currentNode = newGraph.root
-	// fmt.Println(currentNode, newGraph.root)
+	//fmt.Println(currentNode, newGraph.root)
 	// fmt.Println("old root", graph.root)
 
 	//iterate the nodes and find the node with more than one child
@@ -653,7 +653,7 @@ func (graph Graph) TipClip(kmerLength int) Graph {
 		}
 		//second, going through the paths in the graph,
 		if len(currentNode.children) > 1 {
-			//fmt.Println("currentNode.children >1")
+			// 			//fmt.Println("currentNode.children >1")
 			//this means that the current divergence node is downstream of another divergenodes, and since I need to iterate the path map later, i also want to indicate the linear relation between divergennodes. If i want to check if a given divergenode is the very last/tip one, just iterate the whole map with the key as the last string attached to the "currentKey"
 			// fmt.Println("current Node", currentNode, "first", currentNode.children)
 			divergenodes = append(divergenodes, currentNode)
@@ -764,9 +764,9 @@ func (graph Graph) CopyGraph() Graph {
 	// var newParents []*Node
 	newRoot.inDegree = graph.root.inDegree
 	newRoot.outDegree = graph.root.outDegree
-	for key, val := range graph.nodes {
+	for key, _ := range graph.nodes {
 		// fmt.Println("start to iterate graph.nodes")
-		fmt.Println(key, val)
+		//fmt.Println(key, val)
 		_, isExist := newGraph.nodes[key]
 		// fmt.Println("get to here", isExist)
 		if isExist {
