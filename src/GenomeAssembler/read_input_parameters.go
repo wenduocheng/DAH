@@ -164,7 +164,7 @@ func ReadReads(path string) []string {
 	for i := 0; i < len(text); i++ {
 			reads = append(reads, text[i])
 		}
-	}
+	
 	return reads
 }
 
