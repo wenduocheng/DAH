@@ -37,7 +37,7 @@ func DenovoAssembler(reads []string, kmerLength int) []string {
 	SaveGraphToGFA(tipclipedGraph, "tipclip")
 
 	// Fifth step: Output the contigs
-	contigsPath := EulerianPath(mergedGraph)
+	contigsPath := EulerianPath(tipclipedGraph)
 	contigs := AssembleContigs(contigsPath, kmerLength)
 
 	return contigs
