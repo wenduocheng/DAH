@@ -889,18 +889,3 @@ func GetInputForHistogram(uniqueKmerCounts map[int]int) []int {
 	}
 	return result
 }
-func GenerateReadsPlot(readLength int, readCounts int, sequence string) []int {
-	n := len(sequence)
-	reads := make([]int, n)
-	for i := 0; i < readCounts; i++ {
-		start := rand.Intn(n)
-		if start < n-readLength {
-			// read := sequence[start : start+readLength]
-			// reads = append(reads, read)
-			for j := start; j < start+readLength; j++ {
-				reads[j]++
-			}
-		}
-	}
-	return reads
-}
