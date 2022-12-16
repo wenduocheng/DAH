@@ -360,3 +360,66 @@ func TestKmerHash(t *testing.T) {
 
 	fmt.Println("KmerHash passes all tests")
 }
+//tianyue
+func TestGetInputForHistogram(t *testing.T) {
+	input := map[int]int{
+		1: 3,
+		2: 2,
+		3: 1,
+	}
+	output := GetInputForHistogram(input)
+
+	answer := []int{1, 1, 1, 2, 2, 3}
+	if len(output) != len(answer) {
+		t.Errorf("Error! Length of output doesn't match with answer!")
+	} else {
+		for i := 0; i < len(answer); i++ {
+			if output[i] != answer[i] {
+				t.Errorf("Error! Output doesn't match with answer!")
+			}
+		}
+
+	}
+	fmt.Println("GetInputForHistogram passes all tests!")
+}
+
+//tianyue
+func TestCopyReads(t *testing.T) {
+	reads := []string{
+		"ATCGC", "TTCGA", "ACTTA",
+	}
+	times := 3
+
+	output := CopyReads(reads, times)
+	answer := []string{
+		"ATCGC", "TTCGA", "ACTTA", "ATCGC", "TTCGA", "ACTTA", "ATCGC", "TTCGA", "ACTTA",
+	}
+	if len(output) != len(answer) {
+		t.Errorf("Error! Length of output is wrong!")
+	} else {
+		for i := 0; i < len(output); i++ {
+			if output[i] != answer[i] {
+				t.Errorf("Error! Output is wrong!")
+			}
+		}
+	}
+	fmt.Println("CopyReads passes all tests!")
+}
+//tianyue
+func TestGetRidOfN(t *testing.T) {
+	Input := "ACGGANA"
+	output := GetRidOfN(Input)
+	answer := "ACGGAA"
+	if output != answer {
+		t.Errorf("Error! Output1 is wrong!")
+	}
+	Input2 := "AGCNNNNN"
+	output2 := GetRidOfN(Input2)
+	answer2 := "AGC"
+	if output2 != answer2 {
+		t.Errorf("Error! Output2 is wrong!")
+	} else {
+		fmt.Println("GetRidOfN passes all tests!")
+	}
+
+}
