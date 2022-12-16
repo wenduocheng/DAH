@@ -107,12 +107,12 @@ func main() {
 
 	var reads []string
 	if filetype == "genome" {
-		genome := ReadInput(filename)
+		genome := ReadSequence(filename)
 		readLength := 100
 		readCounts := 300000
 		reads = GenerateReads(readLength, readCounts, genome)
 	} else {
-		reads = ReadInput(filename)
+		reads = ReadReads(filename)
 	}
 
 	//kmer selection
