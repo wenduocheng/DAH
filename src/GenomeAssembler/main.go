@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 )
@@ -118,20 +120,42 @@ func main() {
 	var coverage int
 	coverage = 10
 	if kmerchoice == "default" {
+		fmt.Println("The kmer choice is default, now select the adjusted optimal kmer length.")
 		kmer_length = OptimalKmerSize(reads, coverage)
 	} else {
+		fmt.Println("The kmer choice is range, the range is from" ,min, "to",max)
 		kmer_length = OptimalKmerSizeWithRange(min, max, reads)
 	}
 
+	//print out the optiaml kmerlength
 	fmt.Println("The optimal kmerlegnth is:")
 	fmt.Println(kmer_length)
 
 	//contigs assembly
-
+	fmt.Println("Now perform the de novo assembly.")
 	contigs := DenovoAssembler(reads, kmer_length)
 
 	fmt.Println("De novo assembly was finished!")
 
-	fmt.Println(len(contigs[0]), len(contigs))
+	//output the generated contigs
+	fmt.Println("Now output the contigs.")
+	file, err := os.OpenFile("contigs.fasta", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		log.Fatalf("failed creating file: %s", err)
+	}
+
+	datawriter := bufio.NewWriter(file)
+
+	for i, data := range contigs {
+		_,_ = datawriter.WriteString(">contigs"+strconv.Itoa(i) + "\n")
+		_, _ = datawriter.WriteString(data + "\n")
+	}
+
+	datawriter.Flush()
+	file.Close()
+	fmt.Println("Contigs are written to the file")
+
+	fmt.Println("Done")
 
 }
