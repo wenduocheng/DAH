@@ -7,6 +7,84 @@ import (
 )
 
 // Wenduo
+func TestRandomMutate(t *testing.T) {
+	rand.Seed(1.0)
+	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT"}
+	outcome := RandomMutate(kmers, 3)
+	answer := []string{"ATCG", "ACGT", "CGTT", "GCTA", "TTAC", "TACC", "ACCG", "CCGT"}
+
+	if !SameStringSlices(outcome, answer) {
+		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
+	} else {
+		fmt.Println("RandomMutate passes all tests!!")
+	}
+}
+
+// Wenduo
+func TestShuffle(t *testing.T) {
+	originalKmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT", "CCCC", "ATTC"}
+	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT", "CCCC", "ATTC"}
+	outcome := Shuffle(kmers)
+	if SameStringSlices(outcome, originalKmers) {
+		t.Errorf("Error! The Shuffle function is not working.")
+	} else {
+		fmt.Println("Shuffle passes all tests!!")
+	}
+}
+
+// Wenduo
+func TestDelete(t *testing.T) {
+	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT", "CCCC", "ATTC"}
+	outcome := Delete(kmers, 2, false)
+	answer := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT"}
+	if !SameStringSlices(outcome, answer) {
+		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
+	} else {
+		fmt.Println("Delete passes all tests!")
+	}
+}
+
+// Wenduo
+func TestGetUniqueKmerCounts(t *testing.T) {
+	kmers := []string{"ATCG", "ATCG", "CGTT", "GTTA", "ATCG", "GTTA", "AAAA", "CCCC"}
+	kmerCounts := KmerHashFromReads(4, kmers)
+	outcome := GetUniqueKmerCounts(kmerCounts)
+
+	answer := make(map[int]int)
+	answer[3] = 1
+	answer[2] = 1
+	answer[1] = 3
+
+	if len(outcome) != 3 {
+		t.Errorf("Error!")
+	}
+	// } else {
+	// 	fmt.Println("Correct!")
+	// }
+
+	if outcome[3] != 1 || outcome[2] != 1 || outcome[1] != 3 {
+		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
+	} else {
+		fmt.Println("GetUniqueKmerCounts passes all tests!")
+	}
+}
+
+// Wenduo
+func TestKmerCountSort(t *testing.T) {
+	kmers := []string{"ATCG", "ATCG", "CGTT", "GTTA", "ATCG", "GTTA", "AAAA", "CCCC"}
+	kmerCounts := KmerHashFromReads(4, kmers)
+	kmerUniqCounts := GetUniqueKmerCounts(kmerCounts)
+	outcome := KmerCountSort(kmerUniqCounts)
+	answer := []int{1, 2, 3}
+
+	if !SameIntegerSlices(answer, outcome) {
+		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
+	} else {
+		fmt.Println("KmerCountSort passes all tests!")
+	}
+}
+
+// Wenduo
 func TestGenerateSequence(t *testing.T) {
 	rand.Seed(1.0)
 	outcome := GenerateSequence(10)
@@ -14,7 +92,7 @@ func TestGenerateSequence(t *testing.T) {
 	if outcome != answer {
 		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
 	} else {
-		fmt.Println("Correct!")
+		fmt.Println("GenerateSequence passes first test!")
 	}
 
 	outcome2 := GenerateSequence(0)
@@ -22,7 +100,7 @@ func TestGenerateSequence(t *testing.T) {
 	if outcome2 != answer2 {
 		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
 	} else {
-		fmt.Println("Correct!")
+		fmt.Println("GenerateSequence passes second test!")
 	}
 }
 
@@ -36,90 +114,12 @@ func TestGetKmers(t *testing.T) {
 	if !SameStringSlices(kmers, answer) {
 		t.Errorf("Error! The answer is %v, and your code gives %v", answer, kmers)
 	} else {
-		fmt.Println("Correct!")
+		fmt.Println("GetKmers pass all tests!")
 	}
 
 }
 
-// Wenduo
-func TestRandomMutate(t *testing.T) {
-	rand.Seed(1.0)
-	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT"}
-	outcome := RandomMutate(kmers, 3)
-	answer := []string{"ATCG", "ACGT", "CGTT", "GCTA", "TTAC", "TACC", "ACCG", "CCGT"}
-
-	if !SameStringSlices(outcome, answer) {
-		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
-	} else {
-		fmt.Println("Correct!")
-	}
-}
-
-// Wenduo
-func TestShuffle(t *testing.T) {
-	originalKmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT", "CCCC", "ATTC"}
-	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT", "CCCC", "ATTC"}
-	outcome := Shuffle(kmers)
-	if SameStringSlices(outcome, originalKmers) {
-		t.Errorf("Error! The Shuffle function is not working.")
-	} else {
-		fmt.Println("Correct!")
-	}
-}
-
-// Wenduo
-func TestDelete(t *testing.T) {
-	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT", "CCCC", "ATTC"}
-	outcome := Delete(kmers, 2, false)
-	answer := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT"}
-	if !SameStringSlices(outcome, answer) {
-		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
-	} else {
-		fmt.Println("Correct!")
-	}
-}
-
-// Wenduo
-func TestGetUniqueKmerCounts(t *testing.T) {
-	kmers := []string{"ATCG", "ATCG", "CGTT", "GTTA", "ATCG", "GTTA", "AAAA", "CCCC"}
-	kmerCounts := KmerHash2(kmers)
-	outcome := GetUniqueKmerCounts(kmerCounts)
-
-	answer := make(map[int]int)
-	answer[3] = 1
-	answer[2] = 1
-	answer[1] = 3
-
-	if len(outcome) != 3 {
-		t.Errorf("Error!")
-	} else {
-		fmt.Println("Correct!")
-	}
-
-	if outcome[3] != 1 || outcome[2] != 1 || outcome[1] != 3 {
-		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
-	} else {
-		fmt.Println("Correct!")
-	}
-}
-
-// Wenduo
-func TestKmerCountSort(t *testing.T) {
-	kmers := []string{"ATCG", "ATCG", "CGTT", "GTTA", "ATCG", "GTTA", "AAAA", "CCCC"}
-	kmerCounts := KmerHash2(kmers)
-	kmerUniqCounts := GetUniqueKmerCounts(kmerCounts)
-	outcome := KmerCountSort(kmerUniqCounts)
-	answer := []int{1, 2, 3}
-
-	if !SameIntegerSlices(answer, outcome) {
-		t.Errorf("Error! The answer is %v, and your code gives %v", answer, outcome)
-	} else {
-		fmt.Println("Correct!")
-	}
-}
-
-
-//Lilin
+// Lilin
 func TestDivideConquer(t *testing.T) {
 
 	//base case
@@ -158,10 +158,10 @@ func TestDivideConquer(t *testing.T) {
 		}
 	}
 
-	fmt.Println("DivideConquer all tests passed.")
+	fmt.Println("DivideConquer passes all tests!")
 }
 
-//Lilin
+// Lilin
 func TestSort(t *testing.T) {
 	//base case
 	test1 := []string{"A", "AC", "ACT"}
@@ -181,10 +181,10 @@ func TestSort(t *testing.T) {
 			t.Errorf("Sort duplicate case fails")
 		}
 	}
-	fmt.Println("Sort all tests passed.")
+	fmt.Println("Sort passes all tests!")
 }
 
-//Lilin
+// Lilin
 func TestN50(t *testing.T) {
 	test1 := []string{"AGG"}
 	result1 := N50(test1)
@@ -200,10 +200,10 @@ func TestN50(t *testing.T) {
 		t.Errorf("N50 fails at duplicate length")
 	}
 
-	fmt.Println("N50 all tests passed.")
+	fmt.Println("N50 passes all tests!")
 }
 
-//Lilin
+// Lilin
 func TestEulerianPath(t *testing.T) {
 	//base case
 	var text1 []string
@@ -224,11 +224,11 @@ func TestEulerianPath(t *testing.T) {
 		t.Errorf("EulerianPath fails at kmer length = genome length")
 	}
 
-	fmt.Println("EulerianPath all tests passed.")
+	fmt.Println("EulerianPath passes all tests!")
 
 }
 
-//Lilin
+// Lilin
 func TestFindPrime(t *testing.T) {
 	a := 20
 	a_prime_list := []int{1, 2, 3, 5, 7, 11, 13, 17, 19}
@@ -247,10 +247,10 @@ func TestFindPrime(t *testing.T) {
 			t.Errorf("FindPrime function is wrong!")
 		}
 	}
-	fmt.Println("FindPrime passes all tests.")
+	fmt.Println("FindPrime passes all tests!")
 }
 
-//Lilin
+// Lilin
 func TestDistinctKmerCount(t *testing.T) {
 
 	var text1 []string
@@ -270,10 +270,10 @@ func TestDistinctKmerCount(t *testing.T) {
 	if expectedDisCount2 != realDisCount2 {
 		t.Errorf("DistinctKmerCount is wrong!")
 	}
-	fmt.Println("DistinctKmerCount passes all tests.")
+	fmt.Println("DistinctKmerCount passes all tests!")
 }
 
-//Lilin
+// Lilin
 func TestGenomeCoverage(t *testing.T) {
 	genome := "AGTCAGTCAGTCAGTCAGTC" //20
 	readlength := 5
@@ -285,5 +285,5 @@ func TestGenomeCoverage(t *testing.T) {
 		t.Errorf("GenomeCoverage is wrong!")
 	}
 
-	fmt.Println("GenomeCoverage passes all tests.")
+	fmt.Println("GenomeCoverage passes all tests!")
 }
