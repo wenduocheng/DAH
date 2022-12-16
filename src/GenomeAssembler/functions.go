@@ -18,14 +18,14 @@ import (
 // Output: a list of strings corresponding to output contigs
 // Wenduo; Lilin; Tianyue
 func DenovoAssembler(reads []string, kmerLength int) []string {
-		// First step: Determine kmer size
+	// First step: Determine kmer size
 
 	// Second step: Hash the reads
 	kmerCounts := KmerHashFromReads(kmerLength, reads)
 	// Generate a Kmer Frequency Distribution Plot
 	uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
 	sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
-
+	fmt.Println(sortedUniqCounts)
 	DrawHistogram(sortedUniqCounts)
 
 	// Third step: Construct the de Bruijn graph
@@ -629,7 +629,7 @@ func (graph Graph) TipClip(kmerLength int) Graph {
 	var pastNode *Node
 	//starting from the root of the graph
 	currentNode = newGraph.root
-	fmt.Println(currentNode, newGraph.root)
+	// fmt.Println(currentNode, newGraph.root)
 	// fmt.Println("old root", graph.root)
 
 	//iterate the nodes and find the node with more than one child
@@ -653,7 +653,7 @@ func (graph Graph) TipClip(kmerLength int) Graph {
 		}
 		//second, going through the paths in the graph,
 		if len(currentNode.children) > 1 {
-// 			//fmt.Println("currentNode.children >1")
+			//fmt.Println("currentNode.children >1")
 			//this means that the current divergence node is downstream of another divergenodes, and since I need to iterate the path map later, i also want to indicate the linear relation between divergennodes. If i want to check if a given divergenode is the very last/tip one, just iterate the whole map with the key as the last string attached to the "currentKey"
 			// fmt.Println("current Node", currentNode, "first", currentNode.children)
 			divergenodes = append(divergenodes, currentNode)
@@ -717,7 +717,7 @@ func (graph Graph) TipClip(kmerLength int) Graph {
 		}
 	}
 	//print out the edges that need to be delet if needed
-	fmt.Println("edges need to be deleted", deleteEdge)
+	// fmt.Println("edges need to be deleted", deleteEdge)
 	//final step, check the graph (nodes and edges) and delete the nodes in the map deleteEdge and the edges that is connecting to it
 	//this for loop is to check nodes
 	for key, val := range deleteEdge {
@@ -746,7 +746,7 @@ func (graph Graph) TipClip(kmerLength int) Graph {
 // //input: De bruijn Graph
 // //output: a copy of a de Bruijn graph
 func (graph Graph) CopyGraph() Graph {
-	fmt.Println("copy graph old graph root", graph.root)
+	// fmt.Println("copy graph old graph root", graph.root)
 	var newGraph Graph
 	newNodes := make(map[string]*Node, len(graph.nodes))
 	newEdges := make(map[string]*Edge, len(graph.edges))
@@ -836,7 +836,7 @@ func (graph Graph) CopyGraph() Graph {
 		panic("Error: the len of map edges are not the same length")
 
 	}
-	fmt.Println("finished edges, finished all")
+	// fmt.Println("finished edges, finished all")
 	// // fmt.Println("graph vs new graph", graph.nodes)
 	// fmt.Println("newGraph", newGraph.nodes)
 	// fmt.Println("new root", newGraph.root, "old root", graph.root)
