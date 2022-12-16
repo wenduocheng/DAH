@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sort"
 )
 
@@ -28,13 +29,13 @@ func DenovoAssembler(reads []string, kmerLength int) []string {
 
 	// Third step: Construct the de Bruijn graph
 	dbGraph := DeBruijnGraph(kmerLength, reads)
-	SaveGraphToGFA(dbGraph, "deBruijnGraph")
+	// SaveGraphToGFA(dbGraph, "deBruijnGraph")
 	// Fourth step: Simplify the de Bruijn graph
 	mergedGraph := dbGraph.ChainMerging()
-	SaveGraphToGFA(mergedGraph, "merged")
+	// SaveGraphToGFA(mergedGraph, "merged")
 
 	tipclipedGraph := mergedGraph.TipClip(kmerLength)
-	SaveGraphToGFA(tipclipedGraph, "tipclip")
+	// SaveGraphToGFA(tipclipedGraph, "tipclip")
 
 	// Fifth step: Output the contigs
 	contigsPath := EulerianPath(tipclipedGraph)
@@ -170,6 +171,8 @@ func DeBruijnGraph(kmerLength int, reads []string) Graph {
 }
 
 // GenerateSequence returns all the kmers of a string given a kmerLength
+// Input: a string representing a sequence and an integer representing the kmer length
+// Output: a list of kmers
 // Wenduo
 func GetKmers(sequence string, kmerLength int) []string {
 	kmers := make([]string, 0)
@@ -236,15 +239,18 @@ func (dbGraph Graph) ChainMerging() Graph {
 		node = stack[len(stack)-1]
 		stack = stack[:(len(stack) - 1)]
 
+		// add the node to toBeMerged if it satifies the conditions
 		if len(node.children) == 1 && !visited[node.children[0].label] && (len(node.parents) == 1 || node.parents == nil) {
 			toBeMerged = append(toBeMerged, node)
 		} else if node.children == nil {
+			// if the node has no children, clear out the toBeMerged
 			toBeMerged = append(toBeMerged, node)
 			var mergedNode Node
 			newLabel := toBeMerged[0].label
 			for i := 1; i < len(toBeMerged); i++ {
 				newLabel += toBeMerged[i].label[kmerLength-2 : kmerLength-1]
 			}
+			// Create the merged node
 			mergedNode.label = newLabel
 			mergedNode.inDegree = toBeMerged[0].inDegree
 			mergedNode.outDegree = toBeMerged[len(toBeMerged)-1].outDegree
@@ -253,6 +259,7 @@ func (dbGraph Graph) ChainMerging() Graph {
 			for _, parent := range toBeMerged[0].parents {
 				mergedNode.parents = append(mergedNode.parents, newNodes[parent.label])
 				newNodes[parent.label].children = append(newNodes[parent.label].children, &mergedNode)
+				// Create the edge
 				var newEdge Edge
 				newEdge.label = parent.label + mergedNode.label[kmerLength-2:len(mergedNode.label)]
 				newEdge.from = parent
@@ -260,10 +267,13 @@ func (dbGraph Graph) ChainMerging() Graph {
 				newEdge.weight = dbGraph.edges[parent.label+toBeMerged[0].label[kmerLength-2:kmerLength-1]].weight
 				newEdges[newEdge.label] = &newEdge
 			}
+			// Reset the toBeMerged
 			toBeMerged = make([]*Node, 0)
 
 		} else if len(node.children) == 1 && visited[node.children[0].label] {
-			if node.label == node.children[0].label { // point to itself
+			// if a node has a child that is itself
+			// this will generate a self-pointing ring
+			if node.label == node.children[0].label {
 				var newEdge Edge
 				newEdge.label = node.label + node.children[0].label[kmerLength-2:kmerLength-1]
 				newEdge.from = newNodes[node.label]
@@ -308,8 +318,8 @@ func (dbGraph Graph) ChainMerging() Graph {
 				newEdges[newEdge.label] = &newEdge
 			}
 			toBeMerged = make([]*Node, 0)
-		} else { // have two or more children
-
+		} else {
+			// if a node has two or more children
 			// add node to newGraph.nodes
 			// newNodes[node.label] = node
 
@@ -319,7 +329,8 @@ func (dbGraph Graph) ChainMerging() Graph {
 			newNode.outDegree = node.outDegree
 			newNodes[newNode.label] = &newNode
 
-			for _, child := range node.children { // if a node has a child that is the node itself
+			for _, child := range node.children {
+				// if a node has a child that is the node itself
 				if child.label == node.label {
 					var newEdge Edge
 					newEdge.label = node.label + node.children[0].label[kmerLength-2:kmerLength-1]
@@ -332,6 +343,7 @@ func (dbGraph Graph) ChainMerging() Graph {
 				}
 			}
 
+			// check if the parent nodes of the node are in the newNodes
 			for _, parent := range node.parents {
 				_, exists := newNodes[parent.label]
 				if exists {
@@ -346,6 +358,7 @@ func (dbGraph Graph) ChainMerging() Graph {
 				}
 			}
 
+			// check if the children nodes of the node are in the newNodes
 			for _, child := range node.children {
 				_, exists := newNodes[child.label]
 				if exists && !newNodes[child.label].InChildren(newNodes[node.label]) {
@@ -360,7 +373,7 @@ func (dbGraph Graph) ChainMerging() Graph {
 				}
 			}
 
-			// Merge nodes in toBeMerged and add to graph
+			// Merge the nodes in toBeMerged into one node and add it to graph
 			if len(toBeMerged) >= 1 {
 				var mergedNode Node
 				newLabel := toBeMerged[0].label
@@ -416,6 +429,7 @@ func (dbGraph Graph) ChainMerging() Graph {
 	newGraph.nodes = newNodes
 	newGraph.edges = newEdges
 
+	// Set the root
 	for key, _ := range newGraph.nodes {
 		newGraph.root = newGraph.nodes[key]
 		break
@@ -480,7 +494,7 @@ func EulerianPath(graph Graph) [][]string {
 
 		}
 	}
-	
+
 	//to check if finish all edges if not continue
 	a := true
 	for a {
@@ -546,7 +560,6 @@ func Contain(kmerComposition []string, kmer string) bool {
 	return false
 }
 
-
 // SameStringSlices returns true if two slices are the same
 // This function is for test
 // Wenduo
@@ -605,9 +618,9 @@ func CalculateGCConent(sequence string) int {
 
 // //Tip Clip will iterate through the de Bruijn Graph and find the dead end part that is
 // //less 2kmer length
-//input: de Bruijn Graph after chain merging
-//output: a new de Bruijn Graph after tip clipped
-//tianyue
+// input: de Bruijn Graph after chain merging
+// output: a new de Bruijn Graph after tip clipped
+// tianyue
 func (graph Graph) TipClip(kmerLength int) Graph {
 
 	newGraph := graph.CopyGraph()
