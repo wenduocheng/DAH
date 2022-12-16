@@ -842,3 +842,37 @@ func (graph Graph) CopyGraph() Graph {
 	// fmt.Println("new root", newGraph.root, "old root", graph.root)
 	return newGraph
 }
+//Generate a txt file based on uniqueKmerCounts
+//Input: Unique kmer counts, kmer length
+//output: txt file 
+//tianyue
+func GenerateUniqueKmerCountTextFile(uniqueKmerCounts map[int]int, kmerLength int) {
+
+	f, err := os.Create(strconv.Itoa(kmerLength) + ".txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	w := bufio.NewWriter(f)
+	// var list []int
+	for key, val := range uniqueKmerCounts {
+		for i := 0; i < val; i++ {
+			w.WriteString(strconv.Itoa(key) + ",")
+		}
+	}
+	w.Flush()
+
+}
+//Generate a text file for read coverage plotting
+//Input: read plot 
+//output: txt file
+//tianyue
+func arraytextfile(GenerateReadsPlot []int, name string) {
+	f, err := os.Create(name + ".txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	w := bufio.NewWriter(f)
+	for idx := range GenerateReadsPlot {
+		w.WriteString(strconv.Itoa(GenerateReadsPlot[idx]) + ",")
+	}
+}
