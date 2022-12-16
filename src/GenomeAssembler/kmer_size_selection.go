@@ -239,7 +239,7 @@ func OptimalKmerSize(reads []string, coverage int) int {
 	kmer_coverage = KmerCoverage(readlength, optimalk1, genome_coverage)
 
 	optimalk = KmerSizeAdjustment(readlength, kmer_coverage, genome_coverage)
-	
+
 	//if the kmer is too small, the memory would be large, and mismatch could also be large
 	if readlength >= 10 && optimalk < 4 {
 		optimalk = 4
@@ -251,6 +251,7 @@ func OptimalKmerSize(reads []string, coverage int) int {
 	return optimalk
 
 }
+
 // GenomeSizeEstimate estimates the size of the genome
 // Input: the reads set, the coverage rate
 // Output: the estimate size of genome
@@ -261,6 +262,7 @@ func GenomeSizeEstimate(reads []string, numberOfCopies int) int {
 	estimate_size = len(reads) / numberOfCopies
 	return estimate_size
 }
+
 //OptimalKmerSizeWithRange finds the best kmer length within a range
 //Input: the range of the kmerlength the min value and the max value, the slice of reads
 //Output: the kmer length within this range of best fit
@@ -288,4 +290,66 @@ func OptimalKmerSizeWithRange(kmermin, kmermax int, reads []string) int {
 		}
 	}
 	return optimalk1
+}
+
+// GenerateUniqueAndDistinctCount generate the unique counts and distinct counts map
+// Input: The reads and number n represents the maximum kmer for the map
+// Output: The unique and distinct kmers counts map, key: kmer length, value:kmer counts
+// Lilin
+func GenerateUniqueAndDistinctCount(reads []string, n int) (map[int]int, map[int]int) {
+	uniqueCount := make(map[int]int)
+	distinctCount := make(map[int]int)
+	for k := 1; k <= n; k++ {
+		kmerCounts := KmerHash(reads, k)
+		countu := UniqueCount(kmerCounts)
+		countd := DistinctCount(kmerCounts)
+
+		uniqueCount[k] = countu
+		distinctCount[k] = countd
+	}
+	return uniqueCount, distinctCount
+}
+
+// UniqueCount finds the unique kmer counts
+// Intput: kmerCounts map, key: kmers, value: counts of this kmer
+// Output: the number of unique kmers
+// Lilin
+func UniqueCount(kmerCounts map[string]int) int {
+	var count int
+	for k, _ := range kmerCounts {
+		if kmerCounts[k] == 1 {
+			count++
+		}
+	}
+	return count
+}
+
+// DistinctCount finds the distinct kmer counts
+// Input: kmerCounts map, key: kmers, value: counts of this kmer
+// Output: the number of distinct kmers
+// Lilin
+func DistinctCount(kmerCounts map[string]int) int {
+	var count int
+	count = len(kmerCounts)
+	return count
+}
+
+// KmerHash hash the kmers to the map and record the number of time that kmer appears in the genome
+// Input: the reads and the kmer length
+// Output: the Kmer hash map, key: kmers value: kmer counts
+// Lilin
+func KmerHash(reads []string, k int) map[string]int {
+	kmerCounts := make(map[string]int)
+	for _, read := range reads {
+		for i := 0; i <= len(read)-k; i++ {
+			kmer := read[i : i+k]
+			_, exists := kmerCounts[kmer]
+			if exists {
+				kmerCounts[kmer]++
+			} else {
+				kmerCounts[kmer] = 1
+			}
+		}
+	}
+	return kmerCounts
 }
