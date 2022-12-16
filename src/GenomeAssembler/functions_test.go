@@ -7,6 +7,52 @@ import (
 )
 
 // Wenduo
+func TestKmerHashFromReads(t *testing.T) {
+	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT", "CCCC", "ATTC"}
+	kmerCounts := KmerHashFromReads(3, kmers)
+
+	if len(kmerCounts) != 11 {
+		t.Errorf("Error! KmerHashFromReads miss out some kmers!")
+	} else if kmerCounts["ACC"] != 2 {
+		t.Errorf("Error! KmerHashFromReads gives the wrong counts!")
+	} else if kmerCounts["ATC"] != 1 {
+		t.Errorf("Error! KmerHashFromReads gives the wrong counts!")
+	} else if kmerCounts["TCG"] != 2 {
+		t.Errorf("Error! KmerHashFromReads gives the wrong counts!")
+	} else if kmerCounts["TTC"] != 1 {
+		t.Errorf("Error! KmerHashFromReads gives the wrong counts!")
+	} else {
+		fmt.Println("KmerHashFromReads passes all tests!!")
+	}
+}
+
+// Wenduo
+func TestGetKmerComposition(t *testing.T) {
+	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT", "CCCC", "ATTC"}
+	kmerCounts := KmerHashFromReads(3, kmers)
+	kmerComposition := GetKmerComposition(kmerCounts)
+	fmt.Println(kmerComposition)
+
+	if len(kmerCounts) != 11 {
+		t.Errorf("Error! GetKmerComposition miss out some kmers!")
+	} else if !Contain(kmerComposition, "TCG") {
+		t.Errorf("Error! KmerHashFromReads should have contained TCG!")
+	} else if !Contain(kmerComposition, "TAC") {
+		t.Errorf("Error! KmerHashFromReads should have contained TAC!")
+	} else if !Contain(kmerComposition, "ATT") {
+		t.Errorf("Error! KmerHashFromReads should have contained ATT!")
+	} else if !Contain(kmerComposition, "TTC") {
+		t.Errorf("Error! KmerHashFromReads should have contained TTC!")
+	} else if !Contain(kmerComposition, "CGT") {
+		t.Errorf("Error! KmerHashFromReads should have contained CGT!")
+	} else if !Contain(kmerComposition, "TTA") {
+		t.Errorf("Error! KmerHashFromReads should have contained TTA!")
+	} else {
+		fmt.Println("KmerHashFromReads passes all tests!!")
+	}
+}
+
+// Wenduo
 func TestRandomMutate(t *testing.T) {
 	rand.Seed(1.0)
 	kmers := []string{"ATCG", "TCGT", "CGTT", "GTTA", "TTAC", "TACC", "ACCG", "CCGT"}
