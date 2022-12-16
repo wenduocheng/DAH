@@ -14,12 +14,37 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-// func main() {
-// 	// fmt.Println("Hello, 世界")
-// 	var sudocounts = []int{233, 125, 98, 70, 23, 4, 1}
+// Draw a histogram
+// Wenduo
+func DrawHistogram(counts []int) {
+	//make data
+	var values plotter.Values
 
-// 	DrawKmerScatter(sudocounts)
-// }
+	for i := 0; i < len(counts); i++ {
+		values = append(values, float64(counts[i]))
+		fmt.Println(float64(counts[i]))
+	}
+
+	//boxPlot(values)
+	//barPlot(values[:4])
+	histPlot(values)
+}
+
+func histPlot(values plotter.Values) {
+	p := plot.New()
+
+	p.Title.Text = "Kmer frequency distribution"
+
+	hist, err := plotter.NewHist(values, 18)
+	if err != nil {
+		panic(err)
+	}
+	p.Add(hist)
+
+	if err := p.Save(3*vg.Inch, 3*vg.Inch, "kmerFrequencyDistribution.png"); err != nil {
+		panic(err)
+	}
+}
 
 // Draw Scatter plot
 // Input: UniqueKmerCount []int
