@@ -18,14 +18,15 @@ import (
 // Output: a list of strings corresponding to output contigs
 // Wenduo; Lilin; Tianyue
 func DenovoAssembler(reads []string, kmerLength int) []string {
-	// First step: Determine kmer size
+		// First step: Determine kmer size
 
 	// Second step: Hash the reads
-	// kmerCounts := KmerHashFromReads(kmerLength, reads)
-	// Generate a Kmer Distribution Plot
-	// uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
-	// sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
-	// DrawKmerScatter(sortedUniqCounts)
+	kmerCounts := KmerHashFromReads(kmerLength, reads)
+	// Generate a Kmer Frequency Distribution Plot
+	uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
+	sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
+
+	DrawHistogram(sortedUniqCounts)
 
 	// Third step: Construct the de Bruijn graph
 	dbGraph := DeBruijnGraph(kmerLength, reads)
