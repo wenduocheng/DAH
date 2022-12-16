@@ -123,7 +123,7 @@ func main() {
 		fmt.Println("The kmer choice is default, now select the adjusted optimal kmer length.")
 		kmer_length = OptimalKmerSize(reads, coverage)
 	} else {
-		fmt.Println("The kmer choice is range, the range is from" ,min, "to",max)
+		fmt.Println("The kmer choice is range, the range is from", min, "to", max)
 		kmer_length = OptimalKmerSizeWithRange(min, max, reads)
 	}
 
@@ -147,14 +147,19 @@ func main() {
 
 	datawriter := bufio.NewWriter(file)
 
-	for i, data := range contigs {
-		_,_ = datawriter.WriteString(">contigs"+strconv.Itoa(i) + "\n")
-		_, _ = datawriter.WriteString(data + "\n")
+	for i, contig := range contigs {
+		_, _ = datawriter.WriteString(">contigs" + strconv.Itoa(i) + " length: " + strconv.Itoa(len(contig)) + "\n")
+		_, _ = datawriter.WriteString(contig + "\n")
 	}
 
 	datawriter.Flush()
 	file.Close()
 	fmt.Println("Contigs are written to the file")
+
+	//get the N50 length
+	n50 := N50(contigs)
+	fmt.Print("The N50 is: ")
+	fmt.Println(n50)
 
 	fmt.Println("Done")
 
