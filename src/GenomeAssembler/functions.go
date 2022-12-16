@@ -652,7 +652,7 @@ func (graph Graph) TipClip(kmerLength int) Graph {
 		}
 		//second, going through the paths in the graph,
 		if len(currentNode.children) > 1 {
-			fmt.Println("currentNode.children >1")
+// 			//fmt.Println("currentNode.children >1")
 			//this means that the current divergence node is downstream of another divergenodes, and since I need to iterate the path map later, i also want to indicate the linear relation between divergennodes. If i want to check if a given divergenode is the very last/tip one, just iterate the whole map with the key as the last string attached to the "currentKey"
 			// fmt.Println("current Node", currentNode, "first", currentNode.children)
 			divergenodes = append(divergenodes, currentNode)
