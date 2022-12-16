@@ -5,8 +5,8 @@ package main
 // Output: The unique and distinct kmers counts map, key: kmer length, value:kmer counts
 // Lilin
 func GenerateUniqueAndDistinctCount(reads []string, n int) (map[int]int, map[int]int) {
-	var uniqueCount map[int]int
-	var distinctCount map[int]int
+	uniqueCount := make(map[int]int)
+	distinctCount := make(map[int]int)
 	for k := 1; k <= n; k++ {
 		kmerCounts := KmerHash(reads, k)
 		countu := UniqueCount(kmerCounts)
