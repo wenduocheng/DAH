@@ -146,8 +146,9 @@ func main() {
 	}
 
 	datawriter := bufio.NewWriter(file)
-
-	for _, data := range contigs {
+	
+	for i, data := range contigs {
+		_,_ = datawriter.WriteString(">contigs"+strconv.Itoa(i) + "\n")
 		_, _ = datawriter.WriteString(data + "\n")
 	}
 
@@ -156,5 +157,4 @@ func main() {
 	fmt.Println("Contigs are written to the file")
 
 	fmt.Println("Done")
-
 }
