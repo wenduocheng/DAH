@@ -121,4 +121,24 @@ func ReadTwoIntandTwoPairString(directory string, input_file os.FileInfo) (int, 
 
 }
 
-//map as input (adj matrix) ->
+//read and input the sequencing infomation from a text file in the given directory
+//input: genome sequence file directory; or if in the same folder, just input the name of the file
+//output: a string of a sequence
+func ReadText(path string) string {
+	fileContents, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	inputLines := strings.Split(strings.TrimSpace(strings.Replace(string(fileContents), "\r\n", "\n", -1)), "\n")
+	inputLines = inputLines[1:]
+	var text string
+	text = strings.Join(inputLines, text)
+	var result string
+	for i := 0; i < len(text); i++ {
+		if string(text[i]) == "A" || string(text[i]) == "a" || string(text[i]) == "C" || string(text[i]) == "c" || string(text[i]) == "T" || string(text[i]) == "t" || string(text[i]) == "G" || string(text[i]) == "g" || string(text[i]) == "N" || string(text[i]) == " " {
+			result += string(text[i])
+		}
+	}
+	return result
+}
+
