@@ -157,19 +157,14 @@ func ReadReads(path string) []string {
 	}
 	//trim lines
 	inputLines := strings.Split(strings.TrimSpace(strings.Replace(string(fileContents), "\r\n", "\n", -1)), "\n")
-
 	var text []string
 	text = inputLines
 	var reads []string
 	//only keep the information that we need, but do consider if we still want to keep N in our test sets
 	for i := 0; i < len(text); i++ {
-		if text[i][0:1] != ">" {
-			if string(text[i]) == "A" || string(text[i]) == "a" || string(text[i]) == "C" || string(text[i]) == "c" || string(text[i]) == "T" || string(text[i]) == "t" || string(text[i]) == "G" || string(text[i]) == "g" || string(text[i]) == "N" || string(text[i]) == " " {
-				reads = append(reads, text[i])
-			}
+			reads = append(reads, text[i])
 		}
 	}
-	// fmt.Println(reads)
 	return reads
 }
 
