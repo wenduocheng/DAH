@@ -124,7 +124,7 @@ func ReadTwoIntandTwoPairString(directory string, input_file os.FileInfo) (int, 
 //read and input the sequencing infomation from a text file in the given directory
 //input: genome sequence file directory; or if in the same folder, just input the name of the file
 //output: a string of a sequence
-func ReadText(path string) string {
+func ReadInput(path string) string {
 	fileContents, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
