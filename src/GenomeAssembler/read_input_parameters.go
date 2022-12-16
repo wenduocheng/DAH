@@ -133,12 +133,14 @@ func ReadSequence(path string) string {
 	inputLines = inputLines[1:]
 	var text string
 	text = strings.Join(inputLines, text)
+	text = GetRidOfN(text)
 	var result string
 	for i := 0; i < len(text); i++ {
-		if string(text[i]) == "A" || string(text[i]) == "a" || string(text[i]) == "C" || string(text[i]) == "c" || string(text[i]) == "T" || string(text[i]) == "t" || string(text[i]) == "G" || string(text[i]) == "g" || string(text[i]) == "N" || string(text[i]) == " " {
+		if string(text[i]) == "A" || string(text[i]) == "a" || string(text[i]) == "C" || string(text[i]) == "c" || string(text[i]) == "T" || string(text[i]) == "t" || string(text[i]) == "G" || string(text[i]) == "g" || string(text[i]) == " " {
 			result += string(text[i])
 		}
 	}
+	// fmt.Println(result, "GE")
 	return result
 }
 
@@ -146,6 +148,7 @@ func ReadSequence(path string) string {
 //input: fasta file
 //output: []strings of illumina sequencing short reads
 //tianyue
+
 func ReadReads(path string) []string {
 	//get and read the file
 	fileContents, err := ioutil.ReadFile(path)
@@ -161,9 +164,26 @@ func ReadReads(path string) []string {
 	//only keep the information that we need, but do consider if we still want to keep N in our test sets
 	for i := 0; i < len(text); i++ {
 		if text[i][0:1] != ">" {
-			reads = append(reads, text[i])
+			if string(text[i]) == "A" || string(text[i]) == "a" || string(text[i]) == "C" || string(text[i]) == "c" || string(text[i]) == "T" || string(text[i]) == "t" || string(text[i]) == "G" || string(text[i]) == "g" || string(text[i]) == "N" || string(text[i]) == " " {
+				reads = append(reads, text[i])
+			}
 		}
 	}
-	fmt.Println(reads)
+	// fmt.Println(reads)
 	return reads
+}
+
+//GetRidOf N will go through all the bases in the sequence and remove allthe part with N
+//input : stringh
+//output: string with no N inside
+func GetRidOfN(sequence string) string {
+	var result string
+	for i := 0; i < len(sequence); i++ {
+		if string(sequence[i]) != "N" {
+			result += string(sequence[i])
+			// fmt.Println(string(sequence[i]))
+		}
+	}
+
+	return result
 }
