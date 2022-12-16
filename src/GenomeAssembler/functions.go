@@ -26,7 +26,7 @@ func DenovoAssembler(reads []string, kmerLength int) []string {
 	kmerCounts := KmerHashFromReads(kmerLength, reads)
 	// Generate a Kmer Frequency Distribution Plot
 	uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
-	sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
+
 	Input:=GetInputForHistogram(uniqueKmerCounts)
 	DrawHistogram(Input)
 
