@@ -586,3 +586,229 @@ func CalculateGCConent(sequence string) int {
 	}
 	return count
 }
+
+// //Tip Clip will iterate through the de Bruijn Graph and find the dead end part that is
+// //less 2kmer length
+//input: de Bruijn Graph after chain merging
+//output: a new de Bruijn Graph after tip clipped
+//tianyue
+func (graph Graph) TipClip(kmerLength int) Graph {
+
+	newGraph := graph.CopyGraph()
+	var currentNode *Node
+	var pastNode *Node
+	//starting from the root of the graph
+	currentNode = newGraph.root
+	fmt.Println(currentNode, newGraph.root)
+	// fmt.Println("old root", graph.root)
+
+	//iterate the nodes and find the node with more than one child
+	//keey track of how many times each node will be visit
+	visited := make(map[string]int)
+	//divergenodes will keey track of the pointes where diverge happened
+	var divergenodes []*Node
+	// divergenodes = append(divergenodes, currentNode)
+	// map path is used to track the starting diverge point and the end point of the current bunch. a string is matching to a list of string means that a diverge node can have more than 1 child
+	path := make(map[string][]string)
+	//path weight used to calculate the weight of this divergent path, and the key is storing the start node lable + end node label
+	// var pathweight map[string]int
+	//iterate the graph, and check the nodes where key represents k-1 mer
+	for currentNode != nil {
+		//first update visited, which is a map to keep track the nodes that are visiting and in the end, it will outoput the
+		_, isExit := visited[currentNode.label]
+		if !isExit {
+			visited[currentNode.label] = 1
+		} else {
+			visited[currentNode.label] += 1
+		}
+		//second, going through the paths in the graph,
+		if len(currentNode.children) > 1 {
+			fmt.Println("currentNode.children >1")
+			//this means that the current divergence node is downstream of another divergenodes, and since I need to iterate the path map later, i also want to indicate the linear relation between divergennodes. If i want to check if a given divergenode is the very last/tip one, just iterate the whole map with the key as the last string attached to the "currentKey"
+			// fmt.Println("current Node", currentNode, "first", currentNode.children)
+			divergenodes = append(divergenodes, currentNode)
+			path[currentNode.label] = append(path[currentNode.label], currentNode.label)
+			currentNode.inDegree -= 1
+			pastNode = currentNode
+			currentNode = currentNode.children[0]
+			//update the path of the path
+
+			// path[divergenodes[len(divergenodes)-1].label] = append(path[divergenodes[len(divergenodes)-1].label], currentNode.label)
+
+			newGraph.nodes[pastNode.label].children = pastNode.children[1:]
+			// pastNode.outDegree--
+			newGraph.nodes[pastNode.label].outDegree -= 1
+		} else if len(currentNode.children) == 1 {
+			// fmt.Println("currentNode.child =1")
+			// fmt.Println("current Node", currentNode, "first", currentNode.children)
+			// pastNode.outDegree = 0
+			// fmt.Println(currentNode)
+			currentNode.inDegree -= 1
+			currentNode.outDegree -= 1
+			if len(divergenodes) != 0 {
+				path[divergenodes[len(divergenodes)-1].label] = append(path[divergenodes[len(divergenodes)-1].label], currentNode.label)
+				divergenodes = divergenodes[:len(divergenodes)-1]
+			}
+			pastNode = currentNode
+			currentNode = currentNode.children[0]
+			newGraph.nodes[pastNode.label].children = nil
+
+		} else {
+			pastNode = currentNode
+			pastNode.children = nil
+
+			if len(divergenodes) != 0 {
+				currentNode = divergenodes[len(divergenodes)-1]
+
+			} else {
+				currentNode = nil
+			}
+		}
+	}
+	// fmt.Println("path", path)
+	// fmt.Println("divergeNODE", divergenodes)
+	//generate a list that stores the lable of nodes that need to be deleted
+	//not considering the weight of the tips
+	deleteEdge := make(map[string][]string)
+	for _, val := range path {
+		var pathsequence string
+		for i := 0; i < len(val); i++ {
+
+			if i == 0 {
+				pathsequence = val[i]
+			} else {
+				pathsequence += val[i][2:]
+			}
+		}
+		//if the sequence in this tip is less than 2 kmer length, and the last node lable is not recorded as another divergence node, which means that this tip is indeeded not integrated into the graph
+		if len(pathsequence) <= kmerLength+1 && path[val[len(val)-1]] == nil {
+			//the last one need to be add specially
+			deleteEdge[val[0]] = append(deleteEdge[val[0]], path[val[0]][1:]...)
+		}
+	}
+	//print out the edges that need to be delet if needed
+	fmt.Println("edges need to be deleted", deleteEdge)
+	//final step, check the graph (nodes and edges) and delete the nodes in the map deleteEdge and the edges that is connecting to it
+	//this for loop is to check nodes
+	for key, val := range deleteEdge {
+		// 	//if there are only one child or not child attached to this key
+		if len(graph.nodes[key].children) <= 1 {
+			panic("should not include this node")
+		} else {
+			for i := 0; i < len(val); i++ {
+				graph.nodes[val[i]] = nil
+				delete(graph.nodes, val[i])
+				// fmt.Println("this node should be deleted", graph.nodes[val[i]])
+			}
+			//find the kmer of the edge
+			for i := 0; i < len(val)-1; i++ {
+				kmer := val[i][:1] + val[i+1][1:]
+				graph.edges[kmer] = nil
+				delete(graph.edges, kmer)
+				// fmt.Println("this edge should be deleted", graph.edges[kmer], kmer)
+			}
+		}
+	}
+	return graph
+}
+
+// //Copy graph will take a Graph and make a copy of it
+// //input: De bruijn Graph
+// //output: a copy of a de Bruijn graph
+func (graph Graph) CopyGraph() Graph {
+	fmt.Println("copy graph old graph root", graph.root)
+	var newGraph Graph
+	newNodes := make(map[string]*Node, len(graph.nodes))
+	newEdges := make(map[string]*Edge, len(graph.edges))
+	var newRoot Node
+	newGraph.edges = newEdges
+	// fmt.Println("check if map edges have the same memory address", "old:", &graph.edges, "new:", &newGraph.edges, "and their len, old:", len(graph.edges), "new:", len(newGraph.edges))
+	newGraph.nodes = newNodes
+	// fmt.Println("check if map nodes have the same memory address", "old:", &graph.nodes, "new:", &newGraph.nodes, "and their len, old:", len(graph.nodes), "new:", len(newGraph.nodes))
+	newGraph.root = &newRoot
+
+	//copying all the value of root into the new copy of root
+	newRoot.label = graph.root.label
+	var newChildren []*Node
+	newGraph.root.children = newChildren
+	// var newParents []*Node
+	newRoot.inDegree = graph.root.inDegree
+	newRoot.outDegree = graph.root.outDegree
+	for key, val := range graph.nodes {
+		// fmt.Println("start to iterate graph.nodes")
+		fmt.Println(key, val)
+		_, isExist := newGraph.nodes[key]
+		// fmt.Println("get to here", isExist)
+		if isExist {
+			// newGraph.nodes[key].outDegree+=1
+			//If exist, there must be something wrong since I am doing a direct copy, so there indegree/outdegree should be the most updatedvales, thus if this condition is met, it measn there must be something wrong
+
+			// fmt.Println("finished")
+		} else {
+			//deal with the list of children at the very last, first make sure to make all the nodes of the new graph, and update the easy value as int/string
+			// fmt.Println("else")
+			var newNode Node
+			var pointertoNewNode *Node
+			pointertoNewNode = &newNode
+			newNode.label = key
+			// fmt.Println(key, "key")
+			newNode.inDegree = graph.nodes[key].inDegree
+			newNode.outDegree = graph.nodes[key].outDegree
+			newGraph.nodes[newNode.label] = pointertoNewNode
+			//for this node, copy the node relation
+		}
+	}
+	// fmt.Print("finished ranging nodes")
+
+	if len(newGraph.nodes) != len(graph.nodes) {
+		panic("Error: the len of map nodes are not the same length")
+	}
+	for i := 0; i < len(graph.root.children); i++ {
+		newGraph.root.children = append(newGraph.root.children, newGraph.nodes[graph.root.children[i].label])
+	}
+
+	for key, val := range graph.nodes {
+		var newChild []*Node
+		for i := 0; i < len(val.children); i++ {
+			newChild = append(newChild, newGraph.nodes[graph.nodes[key].children[i].label])
+			newGraph.nodes[key].children = newChild
+			// fmt.Println("append new child", newGraph.nodes[key].label, newGraph.nodes[key].children, "old child", graph.nodes[key].children)
+		}
+	}
+	for key, val := range graph.nodes {
+		var newparents []*Node
+		for i := 0; i < len(val.parents); i++ {
+
+			newparents = append(newparents, newGraph.nodes[graph.nodes[key].parents[i].label])
+			newGraph.nodes[key].parents = newparents
+			// fmt.Println("append new parents", newGraph.nodes[key].parents, "old [parents]", graph.nodes[key].parents)
+		}
+	}
+	// fmt.Println("old graoh", graph.nodes, "new graphj", newGraph.nodes)
+	for key, val := range graph.edges {
+		// fmt.Println("edges", key, val)
+		var newEdge Edge
+		var pointertoNewEdge *Edge
+		pointertoNewEdge = &newEdge
+		newEdge.label = val.label
+		newEdge.weight = val.weight
+		// fmt.Println("weight", newEdge.weight)
+
+		var newFrom *Node = newGraph.nodes[val.from.label]
+		newEdge.from = newFrom
+		// fmt.Println("from,", newEdge.from)
+		newEdge.to = newGraph.nodes[val.to.label]
+		newEdges[key] = pointertoNewEdge
+		// fmt.Println("checking each edges and make sure they have the same attributes but the memory address is not the same", "check the label of the old edge:", key, "new label:", newEdge.label, "old memory address", &val, "new memory address:", &newEdge, "old edge weight:", val.weight, "new weight:", newEdge.weight, "old from/to memory address", &val.from, &val.to, "new from /to  memory address", &newEdge.from, &newEdge.to, "old from/to label", val.from.label, val.to.label, "new from/to label:", newEdge.from.label, newEdge.to.label, "old edge memory address", &val, "new edge memory address", &newEdge)
+
+	}
+	if len(newGraph.edges) != len(graph.edges) {
+		panic("Error: the len of map edges are not the same length")
+
+	}
+	fmt.Println("finished edges, finished all")
+	// // fmt.Println("graph vs new graph", graph.nodes)
+	// fmt.Println("newGraph", newGraph.nodes)
+	// fmt.Println("new root", newGraph.root, "old root", graph.root)
+	return newGraph
+}
