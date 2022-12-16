@@ -14,6 +14,7 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
+
 // Draw a histogram
 // Wenduo
 func DrawHistogram(counts []int) {
