@@ -46,10 +46,7 @@ func histPlot(values plotter.Values) {
 	}
 }
 
-// Draw Scatter plot
-// Input: UniqueKmerCount []int
-// Output: Scatter plot
-//tianyue
+
 
 // Draw graph based on given De Bruijn Graph
 // Input: De Bruijn Graph (datatype as nodes map[string]*Node //k-1 mer; edges map[string]*Edge)
@@ -115,6 +112,10 @@ func SaveGraphToGFA(graph Graph, prefix string) {
 	w.Flush()
 
 }
+//Draw a scatter plot based on uniqueKmerCounts
+//Input: uniqueKmerCounts
+//output: a png image
+//tianyue
 func DrawKmerScatter(uniqueKmerCounts map[int]int, title, xlabel, ylabel string) {
 	//due to the package is using interface, I need to check more about this
 
