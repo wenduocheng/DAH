@@ -128,10 +128,11 @@ func GenerateReadsNaive0(readlength int, differentReads int) []string {
 // output []string reads with repeats
 // tianyue
 func CopyReads(ListSequence []string, times int) []string {
+	var newReads []string
 	for i := 0; i < times; i++ {
-		ListSequence = append(ListSequence, ListSequence...)
+		newReads = append(newReads, ListSequence...)
 	}
-	return ListSequence
+	return newReads
 }
 
 // Generate read seqs with the num pf each distinct read is normaly distrubuted
