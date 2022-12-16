@@ -124,7 +124,7 @@ func ReadTwoIntandTwoPairString(directory string, input_file os.FileInfo) (int, 
 //read and input the sequencing infomation from a text file in the given directory
 //input: genome sequence file directory; or if in the same folder, just input the name of the file
 //output: a string of a sequence
-func ReadInput(path string) string {
+func ReadSequence(path string) string {
 	fileContents, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
@@ -142,3 +142,28 @@ func ReadInput(path string) string {
 	return result
 }
 
+//ReadReads takes a fasta file and keep the sequencing reads into a slice of strings
+//input: fasta file
+//output: []strings of illumina sequencing short reads
+//tianyue
+func ReadReads(path string) []string {
+	//get and read the file
+	fileContents, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	//trim lines
+	inputLines := strings.Split(strings.TrimSpace(strings.Replace(string(fileContents), "\r\n", "\n", -1)), "\n")
+
+	var text []string
+	text = inputLines
+	var reads []string
+	//only keep the information that we need, but do consider if we still want to keep N in our test sets
+	for i := 0; i < len(text); i++ {
+		if text[i][0:1] != ">" {
+			reads = append(reads, text[i])
+		}
+	}
+	fmt.Println(reads)
+	return reads
+}
