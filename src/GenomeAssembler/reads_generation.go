@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -17,7 +21,21 @@ func GenerateReads(readLength int, readCounts int, sequence string) []string {
 			reads = append(reads, read)
 		}
 	}
+	f, err := os.Create("GeneratedReads.fasta")
+	if err != nil {
+		fmt.Println(err)
+	}
+	w := bufio.NewWriter(f)
+	// var list []int
+	for i := range reads {
+
+		w.WriteString(">reads" + strconv.Itoa(i) + "\n" + reads[i] + "\n")
+
+	}
+	w.Flush()
+
 	return reads
+
 }
 
 // Generate Read Coverage Plot
@@ -37,7 +55,6 @@ func GenerateReadsPlot(readLength int, readCounts int, sequence string) []int {
 	}
 	return reads
 }
-
 
 // GenerateSequence randomly genertes a sequence composed of A/T/C/G
 // Wenduo
