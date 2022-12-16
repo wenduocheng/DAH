@@ -534,6 +534,18 @@ func ReconstructStringFromGenomePath(sequencePath []string, kmer_length int) str
 	return genome
 }
 
+// Contain returns true if an element is in the slice
+// This function is for test
+// Wenduo
+func Contain(kmerComposition []string, kmer string) bool {
+	for _, val := range kmerComposition {
+		if val == kmer {
+			return true
+		}
+	}
+	return false
+}
+
 
 // SameStringSlices returns true if two slices are the same
 // This function is for test
