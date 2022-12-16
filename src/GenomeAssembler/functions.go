@@ -27,8 +27,9 @@ func DenovoAssembler(reads []string, kmerLength int) []string {
 	// Generate a Kmer Frequency Distribution Plot
 	uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
 	sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
+	Input:=GetInputForHistogram(uniqueKmerCounts)
+	DrawHistogram(Input)
 
-	DrawHistogram(sortedUniqCounts)
 
 	// Third step: Construct the de Bruijn graph
 	dbGraph := DeBruijnGraph(kmerLength, reads)
@@ -877,4 +878,13 @@ func arraytextfile(GenerateReadsPlot []int, name string) {
 	for idx := range GenerateReadsPlot {
 		w.WriteString(strconv.Itoa(GenerateReadsPlot[idx]) + ",")
 	}
+}
+func GetInputForHistogram(uniqueKmerCounts map[int]int) []int {
+	var result []int
+	for key, val := range uniqueKmerCounts {
+		for i := 0; i < val; i++ {
+			result = append(result, key)
+		}
+	}
+	return result
 }
