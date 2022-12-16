@@ -1,14 +1,14 @@
 package main
 
 // GenerateUniqueAndDistinctCount generate the unique counts and distinct counts map
-// Input: The genome and number n represents the maximum kmer for the map
+// Input: The reads and number n represents the maximum kmer for the map
 // Output: The unique and distinct kmers counts map, key: kmer length, value:kmer counts
 // Lilin
-func GenerateUniqueAndDistinctCount(genome string, n int) (map[int]int, map[int]int) {
+func GenerateUniqueAndDistinctCount(reads []string, n int) (map[int]int, map[int]int) {
 	var uniqueCount map[int]int
 	var distinctCount map[int]int
 	for k := 1; k <= n; k++ {
-		kmerCounts := KmerHash(genome, k)
+		kmerCounts := KmerHash(reads, k)
 		countu := UniqueCount(kmerCounts)
 		countd := DistinctCount(kmerCounts)
 
@@ -43,18 +43,20 @@ func DistinctCount(kmerCounts map[string]int) int {
 }
 
 // KmerHash hash the kmers to the map and record the number of time that kmer appears in the genome
-// Input: the genome and the kmer length
+// Input: the reads and the kmer length
 // Output: the Kmer hash map, key: kmers value: kmer counts
 // Lilin
-func KmerHash(genome string, k int) map[string]int {
+func KmerHash(reads []string, k int) map[string]int {
 	var kmerCounts map[string]int
-	for i := 0; i <= len(genome)-k; i++ {
-		kmer := genome[i : i+k]
-		_, exists := kmerCounts[kmer]
-		if exists {
-			kmerCounts[kmer]++
-		} else {
-			kmerCounts[kmer] = 1
+	for _, read := range reads {
+		for i := 0; i <= len(read)-k; i++ {
+			kmer := read[i : i+k]
+			_, exists := kmerCounts[kmer]
+			if exists {
+				kmerCounts[kmer]++
+			} else {
+				kmerCounts[kmer] = 1
+			}
 		}
 	}
 	return kmerCounts
