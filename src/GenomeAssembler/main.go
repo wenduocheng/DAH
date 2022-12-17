@@ -9,10 +9,13 @@ import (
 )
 
 //Sample input in command line
-//Input is Genome:
-//./run genome default
-//./run genome range 21 30
+//If the input is a reference Genome:
+//go run ./ genome SampleInput/genome 10 default
+//go run ./ genome SampleInput/genome 10 range 21 30
 
+//If the input is reads:
+//go run ./ reads GeneratedReads.fasta 10 default
+//go run ./ reads GeneratedReads.fasta 10 range 21 30
 // }
 
 func main() {
