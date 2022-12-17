@@ -7,7 +7,8 @@ import (
 	"os"
 	"strconv"
 )
-//Sample input in command line 
+
+//Sample input in command line
 //Input is Genome:
 //./run genome default
 //./run genome range 21 30
@@ -55,52 +56,52 @@ func main() {
 	}
 
 	var reads []string
+	var genome string
 	if filetype == "genome" {
-		genome := ReadSequence(filename)
+		genome = ReadSequence(filename)
 		readLength := 100
 		readCounts := 300000
 		reads = GenerateReads(readLength, readCounts, genome)
-		readsForPlot := GenerateReadsPlot(readLength, readCounts, viralSequence)
-		DrawBarPlot(readsForPlot)
 	} else {
 		reads = ReadReads(filename)
 	}
 
-	//generate the distinct and unique kmer counts plot:
-	// uniquecounts, distinctcounts := GenerateUniqueAndDistinctCount(reads, 15)
+	if filetype == "genome" {
+		//generate the distinct and unique kmer counts plot:
+		uniquecounts, distinctcounts := GenerateUniqueAndDistinctCount(genome, 15)
 
-	//output the kmer counts to draw in python
-	// fmt.Println("Now output the kmer counts.")
+		//output the kmer counts to draw in python
+		fmt.Println("Now output the kmer counts.")
 
-	// //unique counts file
-	// file1, err := os.OpenFile("UniqueKmerCounts.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	// if err != nil {
-	// 	log.Fatalf("failed creating file: %s", err)
-	// }
+		//unique counts file
+		file1, err := os.OpenFile("UniqueKmerCounts.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatalf("failed creating file: %s", err)
+		}
 
-	// datawriter1 := bufio.NewWriter(file1)
+		datawriter1 := bufio.NewWriter(file1)
 
-	// for k, _ := range uniquecounts {
-	// 	_, _ = datawriter1.WriteString(strconv.Itoa(k) + ":" + strconv.Itoa(uniquecounts[k]) + "\n")
-	// }
+		for k, _ := range uniquecounts {
+			_, _ = datawriter1.WriteString(strconv.Itoa(k) + ":" + strconv.Itoa(uniquecounts[k]) + "\n")
+		}
 
-	// datawriter1.Flush()
-	// file1.Close()
+		datawriter1.Flush()
+		file1.Close()
 
-	// file2, err := os.OpenFile("DistinctKmerCounts.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	// if err != nil {
-	// 	log.Fatalf("failed creating file: %s", err)
-	// }
+		file2, err := os.OpenFile("DistinctKmerCounts.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatalf("failed creating file: %s", err)
+		}
 
-	// datawriter2 := bufio.NewWriter(file2)
+		datawriter2 := bufio.NewWriter(file2)
 
-	// for k, _ := range distinctcounts {
-	// 	_, _ = datawriter2.WriteString(strconv.Itoa(k) + ":" + strconv.Itoa(distinctcounts[k]) + "\n")
-	// }
+		for k, _ := range distinctcounts {
+			_, _ = datawriter2.WriteString(strconv.Itoa(k) + ":" + strconv.Itoa(distinctcounts[k]) + "\n")
+		}
 
-	// datawriter2.Flush()
-	// file2.Close()
-
+		datawriter2.Flush()
+		file2.Close()
+	}
 	//kmer selection
 	var kmer_length int
 	var coverage int
@@ -150,4 +151,3 @@ func main() {
 	fmt.Println("Done")
 
 }
-
