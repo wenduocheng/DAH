@@ -21,26 +21,36 @@ import (
 // Output: a list of strings corresponding to output contigs
 // Wenduo; Lilin; Tianyue
 func DenovoAssembler(reads []string, kmerLength int) []string {
-		// First step: Determine kmer size
+	// First step: Determine kmer size
 
 	// Second step: Hash the reads
-	kmerCounts := KmerHashFromReads(kmerLength, reads)
+	//kmerCounts := KmerHashFromReads(kmerLength, reads)
 	// Generate a Kmer Frequency Distribution Plot
-	uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
+	// uniqueKmerCounts := GetUniqueKmerCounts(kmerCounts)
+	// sortedUniqCounts := KmerCountSort(uniqueKmerCounts)
 
-	Input:=GetInputForHistogram(uniqueKmerCounts)
-	DrawHistogram(Input)
-
+	// DrawHistogram(sortedUniqCounts)
 
 	// Third step: Construct the de Bruijn graph
 	dbGraph := DeBruijnGraph(kmerLength, reads)
-	 SaveGraphToGFA(dbGraph, "deBruijnGraph")
+	// SaveGraphToGFA(dbGraph, "deBruijnGraph")
 	// Fourth step: Simplify the de Bruijn graph
 	mergedGraph := dbGraph.ChainMerging()
-	 SaveGraphToGFA(mergedGraph, "merged")
+	// SaveGraphToGFA(mergedGraph, "merged")
+
+	//check the time difference of De Brujin graph and Chain merged graph
+	start1 := time.Now()
+	EulerianPath(dbGraph)
+	elapsed1 := time.Since(start1)
+	log.Printf("Run Eulerian Path on De Brujin Graph took %s", elapsed1)
+
+	start2 := time.Now()
+	EulerianPath(mergedGraph)
+	elapsed2 := time.Since(start2)
+	log.Printf("Run Eulerian Path on merged graph took %s", elapsed2)
 
 	tipclipedGraph := mergedGraph.TipClip(kmerLength)
-	 SaveGraphToGFA(tipclipedGraph, "tipclip")
+	// SaveGraphToGFA(tipclipedGraph, "tipclip")
 
 	// Fifth step: Output the contigs
 	contigsPath := EulerianPath(tipclipedGraph)
