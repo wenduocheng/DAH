@@ -72,7 +72,7 @@ func main() {
 		readCounts := 30000
 		reads = GenerateReads(readLength, readCounts, genome)
 		
-		readsForPlot := GenerateReadsPlot(readLength, readCounts, viralSequence)
+		readsForPlot := GenerateReadsPlot(readLength, readCounts, genome)
 		DrawBarPlot(readsForPlot)
 	} else {
 		reads = ReadReads(filename)
