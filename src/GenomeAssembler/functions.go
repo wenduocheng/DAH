@@ -38,17 +38,6 @@ func DenovoAssembler(reads []string, kmerLength int) []string {
 	mergedGraph := dbGraph.ChainMerging()
 	// SaveGraphToGFA(mergedGraph, "merged")
 
-	//check the time difference of De Brujin graph and Chain merged graph
-	start1 := time.Now()
-	EulerianPath(dbGraph)
-	elapsed1 := time.Since(start1)
-	log.Printf("Run Eulerian Path on De Brujin Graph took %s", elapsed1)
-
-	start2 := time.Now()
-	EulerianPath(mergedGraph)
-	elapsed2 := time.Since(start2)
-	log.Printf("Run Eulerian Path on merged graph took %s", elapsed2)
-
 	tipclipedGraph := mergedGraph.TipClip(kmerLength)
 	// SaveGraphToGFA(tipclipedGraph, "tipclip")
 
