@@ -1,6 +1,8 @@
 package main
 
-import "math"
+import (
+	"math"
+)
 
 // N50 takes the list of contigs and return the shortest contig length needed to cover 50% genome,
 // describing the completeness of genome assembly
@@ -296,11 +298,11 @@ func OptimalKmerSizeWithRange(kmermin, kmermax int, reads []string) int {
 // Input: The reads and number n represents the maximum kmer for the map
 // Output: The unique and distinct kmers counts map, key: kmer length, value:kmer counts
 // Lilin
-func GenerateUniqueAndDistinctCount(reads []string, n int) (map[int]int, map[int]int) {
+func GenerateUniqueAndDistinctCount(genome string, n int) (map[int]int, map[int]int) {
 	uniqueCount := make(map[int]int)
 	distinctCount := make(map[int]int)
 	for k := 1; k <= n; k++ {
-		kmerCounts := KmerHash(reads, k)
+		kmerCounts := KmerHash(genome, k)
 		countu := UniqueCount(kmerCounts)
 		countd := DistinctCount(kmerCounts)
 
@@ -316,8 +318,9 @@ func GenerateUniqueAndDistinctCount(reads []string, n int) (map[int]int, map[int
 // Lilin
 func UniqueCount(kmerCounts map[string]int) int {
 	var count int
+
 	for k, _ := range kmerCounts {
-		if kmerCounts[k] == 1 {
+		if kmerCounts[k] <= 10 {
 			count++
 		}
 	}
@@ -338,18 +341,18 @@ func DistinctCount(kmerCounts map[string]int) int {
 // Input: the reads and the kmer length
 // Output: the Kmer hash map, key: kmers value: kmer counts
 // Lilin
-func KmerHash(reads []string, k int) map[string]int {
+func KmerHash(genome string, k int) map[string]int {
 	kmerCounts := make(map[string]int)
-	for _, read := range reads {
-		for i := 0; i <= len(read)-k; i++ {
-			kmer := read[i : i+k]
-			_, exists := kmerCounts[kmer]
-			if exists {
-				kmerCounts[kmer]++
-			} else {
-				kmerCounts[kmer] = 1
-			}
+
+	for i := 0; i <= len(genome)-k; i++ {
+		kmer := genome[i : i+k]
+		_, exists := kmerCounts[kmer]
+		if exists {
+			kmerCounts[kmer]++
+		} else {
+			kmerCounts[kmer] = 1
 		}
 	}
+
 	return kmerCounts
 }
