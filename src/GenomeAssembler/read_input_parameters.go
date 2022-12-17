@@ -162,9 +162,13 @@ func ReadReads(path string) []string {
 	var reads []string
 	//only keep the information that we need, but do consider if we still want to keep N in our test sets
 	for i := 0; i < len(text); i++ {
+		if text[i][0:1] != ">" {
 			reads = append(reads, text[i])
+
 		}
-	
+
+	}
+
 	return reads
 }
 
