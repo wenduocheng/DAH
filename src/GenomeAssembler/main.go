@@ -129,6 +129,23 @@ func main() {
 	fmt.Println("The optimal kmerlegnth is:")
 	fmt.Println(kmer_length)
 
+	
+	//compare the dbgraph and chainmerge graph
+	dbGraph := DeBruijnGraph(kmer_length, reads)
+	mergedGraph := dbGraph.ChainMerging()
+
+	start1 := time.Now()
+	EulerianPath(dbGraph)
+	elapsed1 := time.Since(start1)
+	log.Printf("Run Eulerian Path on De Brujin Graph took %s", elapsed1)
+
+	start2 := time.Now()
+	EulerianPath(mergedGraph)
+	elapsed2 := time.Since(start2)
+	log.Printf("Run Eulerian Path on merged graph took %s", elapsed2)
+	
+	
+	
 	//contigs assembly
 	fmt.Println("Now perform the de novo assembly.")
 	contigs := DenovoAssembler(reads, kmer_length)
