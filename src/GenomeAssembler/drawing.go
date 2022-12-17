@@ -15,7 +15,7 @@ import (
 )
 
 
-// Draw a histogram
+// Draw histogram
 // Wenduo
 func DrawHistogram(counts []int) {
 	//make data
@@ -23,7 +23,7 @@ func DrawHistogram(counts []int) {
 
 	for i := 0; i < len(counts); i++ {
 		values = append(values, float64(counts[i]))
-		fmt.Println(float64(counts[i]))
+		// fmt.Println(float64(counts[i]))
 	}
 
 	//boxPlot(values)
@@ -31,6 +31,7 @@ func DrawHistogram(counts []int) {
 	histPlot(values)
 }
 
+// Wenduo
 func histPlot(values plotter.Values) {
 	p := plot.New()
 
@@ -43,6 +44,39 @@ func histPlot(values plotter.Values) {
 	p.Add(hist)
 
 	if err := p.Save(3*vg.Inch, 3*vg.Inch, "kmerFrequencyDistribution.png"); err != nil {
+		panic(err)
+	}
+}
+
+// Draw bar plot
+// Wenduo
+func DrawBarPlot(counts []int) {
+	//make data
+	var values plotter.Values
+
+	for i := 0; i < len(counts); i++ {
+		values = append(values, float64(counts[i]))
+		// fmt.Println(float64(counts[i]))
+	}
+
+	//boxPlot(values)
+	//barPlot(values[:4])
+	barPlot(values)
+}
+
+// Wenduo
+func barPlot(values plotter.Values) {
+	p := plot.New()
+
+	p.Title.Text = "Coverage count plot"
+
+	bar, err := plotter.NewBarChart(values, 1)
+	if err != nil {
+		panic(err)
+	}
+	p.Add(bar)
+
+	if err := p.Save(3*vg.Inch, 3*vg.Inch, "CoverageCountPlot.png"); err != nil {
 		panic(err)
 	}
 }
