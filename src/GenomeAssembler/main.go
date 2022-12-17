@@ -69,11 +69,8 @@ func main() {
 	if filetype == "genome" {
 		genome = ReadSequence(filename)
 		readLength := 100
-		readCounts := 30000
+		readCounts := len(genome) * coverage / readLength
 		reads = GenerateReads(readLength, readCounts, genome)
-		
-		readsForPlot := GenerateReadsPlot(readLength, readCounts, genome)
-		DrawBarPlot(readsForPlot)
 	} else {
 		reads = ReadReads(filename)
 	}
