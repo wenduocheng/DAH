@@ -1,4 +1,4 @@
-# About DAH:
+## About DAH:
 DAH is a genome assembly tool that is based on the de Bruijn graph data structure and written in the Go programming language. It is designed to use short reads to generate long contigs, and it includes features such as suggestions for selecting the optimal k-mer size and example input data. DAH is intended to be more than just a traditional assembler, as it provides additional features and resources to help users with their genome assembly projects.
 
 ## Supported data type
