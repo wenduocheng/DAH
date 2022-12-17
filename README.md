@@ -30,4 +30,4 @@ go run ./ reads GeneratedReads.fasta 10 default
 go run ./ reads GeneratedReads.fasta 10 range 21 30
 ```
 There is also a link to the representation video:
-[Link]()
+[Link](https://drive.google.com/file/d/1bjF9t_3Yt4JLx0EOyWDgOFlTzk7ilc1j/view?usp=sharing)
