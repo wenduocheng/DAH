@@ -24,8 +24,17 @@ func main() {
 	//os.Args[2] is going to be the file name
 	filename := os.Args[2]
 
-	//os.Args[3] is going to be the kmer choice
-	kmerchoice := os.Args[3]
+	//os.Args[3] is going to be the coverage
+	coverage, err1 := strconv.Atoi(os.Args[3])
+	if err1 != nil {
+		panic(err1)
+	}
+	if coverage <= 0 {
+		panic("coverage less than or equal to 0, try again.")
+	}
+
+	//os.Args[4] is going to be the kmer choice
+	kmerchoice := os.Args[4]
 	if kmerchoice != "default" && kmerchoice != "range" {
 		panic("Wrong kmerchoice, try again.")
 	}
@@ -34,7 +43,7 @@ func main() {
 	var min, max int
 	if kmerchoice == "range" {
 		//min
-		min1, err1 := strconv.Atoi(os.Args[4])
+		min1, err1 := strconv.Atoi(os.Args[5])
 		if err1 != nil {
 			panic(err1)
 		}
@@ -45,7 +54,7 @@ func main() {
 		}
 
 		//max
-		max1, err1 := strconv.Atoi(os.Args[5])
+		max1, err1 := strconv.Atoi(os.Args[6])
 		if err1 != nil {
 			panic(err1)
 		}
@@ -60,11 +69,8 @@ func main() {
 	if filetype == "genome" {
 		genome = ReadSequence(filename)
 		readLength := 100
-		readCounts := 300000
+		readCounts := 30000
 		reads = GenerateReads(readLength, readCounts, genome)
-		
-	 	readsForPlot := GenerateReadsPlot(readLength, readCounts, viralSequence)
-		DrawBarPlot(readsForPlot)
 	} else {
 		reads = ReadReads(filename)
 	}
@@ -107,8 +113,7 @@ func main() {
 	}
 	//kmer selection
 	var kmer_length int
-	var coverage int
-	coverage = 10
+
 	if kmerchoice == "default" {
 		fmt.Println("The kmer choice is default, now select the adjusted optimal kmer length.")
 		kmer_length = OptimalKmerSize(reads, coverage)
