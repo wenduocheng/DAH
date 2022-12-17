@@ -21,6 +21,7 @@ func GenerateReads(readLength int, readCounts int, sequence string) []string {
 			reads = append(reads, read)
 		}
 	}
+	reads = Noisify(reads, 300, 30)
 	f, err := os.Create("GeneratedReads.fasta")
 	if err != nil {
 		fmt.Println(err)
